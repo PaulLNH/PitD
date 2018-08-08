@@ -10,44 +10,110 @@ const config = {
     scene: {
         preload: preload,
         create: create,
-        update: update
+        update: update,
+        render: render
     },
     physics: {
         default: "arcade", // Simplest physics, box and circle colliders
         arcade: {
             gravity: {
                 y: 0 // Top down game, so no gravity
-            } 
+            }
         }
     }
 };
 
 // Instanciate a new game instance
 const game = new Phaser.Game(config);
+let showDebug = false;
 
 function preload() {
     // Runs once, loads up assets like images and audio
-    this.load.image('background', '../assets/images/background.png');
+    // this.load.image('background', '../assets/images/background.png');
+    this.load.image("tiles", '../assets/tilesets/tilesets.png');
+    this.load.tilemapTiledJSON("map", "../assets/tilemaps/map.json");
     this.load.spritesheet("human", "../assets/images/human.png", {
-        frameWidth: 16,
+        frameWidth: 16, // 16px human width
         frameHeight: 32
     });
     this.load.spritesheet("zombie", "../assets/images/zombie.png", {
-        frameWidth: 20, // 16px human, 20px zombie
+        frameWidth: 20, // 20px zombie width
         frameHeight: 32
     });
 }
 
 function create() {
-    // Runs once, after all assets in preload are loaded
-    let team = 'zombie';
-    let bg = this.add.sprite(0, 0, 'background');
+    ///// START MAP AND COLLISION /////
+    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+    // Phaser's cache (i.e. the name you used in preload)
+    const map = this.make.tilemap({
+        key: "map",
+        tileWidth: 16,
+        tileHeight: 16
+    });
+    const tileset = map.addTilesetImage("tileset", "tiles");
 
-    bg.setOrigin(0, 0);
+    // Parameters: layer name (or index) from Tiled, tileset, x, y
+    const collisionLayer = map.createStaticLayer("collision", tileset, 0, 0);
+    const belowLayer = map.createStaticLayer("below", tileset, 0, 0);
+    const worldLayer = map.createStaticLayer("world", tileset, 0, 0);
+    const aboveLayer = map.createStaticLayer("above", tileset, 0, 0);
+    const aboveDecorLayer = map.createStaticLayer("aboveDecor", tileset, 0, 0);
+    const decorLayer = map.createStaticLayer("decor", tileset, 0, 0);
 
-    player = this.physics.add.sprite(50, 50, team);
+    // By default, everything gets depth sorted on the screen in the order we created things. Here, we
+    // want the "Above Player" layer to sit on top of the player, so we explicitly give it a depth.
+    // Higher depths will sit on top of lower depth objects.
+    aboveLayer.setDepth(10);
+    aboveDecorLayer.setDepth(11);
+    collisionLayer.setDepth(0);
+
+    collisionLayer.setCollisionByProperty({
+        collides: true
+    }, true);
+
+    // Debug collision //
+    if (showDebug) {
+        const debugGraphics = this.add.graphics().setAlpha(0.75);
+        collisionLayer.renderDebug(debugGraphics, {
+            tileColor: null, // Color of non-colliding tiles
+            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255), // Color of colliding tiles
+            faceColor: new Phaser.Display.Color(40, 39, 37, 255) // Color of colliding face edges
+        });
+        this.physics.world.createDebugGraphic();
+    }
+
+    ///// END MAP AND COLLISION /////
+
+    //////////////////////////////////////////////////////////////////////////////
+
+    ///// START PLAYER CONTROLLER /////
+    // Generates a random team (for testing)
+    let teams = ['human', 'zombie'];
+    let team = teams[Math.round(Math.random())];
+
+    // Max number of spawn points in array format (actual number -1)
+    let spMax = 7;
+    // Randomly select spawn point
+    const sp1 = map.objects[0].objects[Math.floor(Math.floor(Math.random() * (spMax - 0 + 1)) + 0)];
+
+    // Creates a new player at the spawnpoint location with the random team from above
+    player = this.physics.add.sprite(sp1.x, sp1.y, team);
+    player.body.setSize(16, 10, false);
+    // x, y, width, height
+    player.body.setOffset(0, 22, 16, 5);
+
+    // Player name above head
+    // var style = { font: "12px Arial", fill: "#ff0044", wordWrap: true, wordWrapWidth: player.width, align: "center", backgroundColor: "#00000000" };
+    // var text = game.add.text(0, 0, "Paul", style);
+    // text.anchor.set(0.5);
+
+    this.physics.add.collider(player, collisionLayer);
+
+
 
     player.setCollideWorldBounds(true);
+    console.log(player.body);
 
     this.anims.create({
         key: "left",
@@ -97,12 +163,16 @@ function create() {
         frameRate: 10,
         repeat: -1
     });
+
 }
 
 function update(time, delta) {
     let speed = 100;
     cursors = this.input.keyboard.createCursorKeys();
     player.body.velocity.set(0);
+
+    // text.x = Math.floor(player.x + player.width / 2);
+    // text.y = Math.floor(player.y + player.height / 2);
 
     // Runs once per frame for the duration of the scene
     if (cursors.left.isDown) {
@@ -115,7 +185,7 @@ function update(time, delta) {
         player.setVelocityY(-speed);
     } else if (cursors.down.isDown) {
         player.setVelocityY(speed);
-    } 
+    }
 
     if (player.body.velocity.x > 0) {
         player.anims.play("right", true);
@@ -132,4 +202,16 @@ function update(time, delta) {
             player.anims.stop();
         }
     }
+    // Prevents character from moving faster while pressing two directions
+    player.body.velocity.normalize().scale(speed);
+
+    ///// END PLAYER CONTROLLER /////
+}
+
+function render() {
+
+    game.debug.bodyInfo(player, 32, 32);
+
+    game.debug.body(player);
+
 }
