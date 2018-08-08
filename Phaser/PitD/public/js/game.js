@@ -1,28 +1,35 @@
-var config = {
-  type: Phaser.AUTO,
-  parent: 'phaser-example',
-  width: 800,
-  height: 600,
-  physics: {
-    default: 'arcade',
-    arcade: {
-      debug: false,
-      gravity: { y: 0 }
+const config = {
+    type: Phaser.AUTO, // Which renderer to use
+    width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
+    height: 480, // Canvas height in pixels (usually 600) - 160 /w mario tile example
+    zoom: 1, // Since we're working with 16x16 pixel tiles, let's scale up the canvas by 3x
+    pixelArt: true, // Force the game to scale images up crisply
+    parent: "game-container", // ID of the DOM element to add the canvas to
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    },
+    physics: {
+        default: "arcade", // Simplest physics, box and circle colliders
+        arcade: {
+            debug: false, // Set true to see physics colliders
+            gravity: {
+                y: 0 // Top down game, so no gravity
+            } 
+        }
     }
-  },
-  scene: {
-    preload: preload,
-    create: create,
-    update: update
-  } 
 };
 
 var game = new Phaser.Game(config);
 
 function preload() {
-  this.load.image('ship', 'assets/spaceShips_001.png');
-  this.load.image('otherPlayer', 'assets/enemyBlack5.png');
-  this.load.image('star', 'assets/star_gold.png');
+    this.load.image('background', '../assets/images/background.png');
+    this.load.image("mario-tiles", "../assets/tilesets/super-mario-tiles.png");
+    this.load.spritesheet("human", "../assets/images/human.png", {
+        frameWidth: 16,
+        frameHeight: 32
+    });
 }
 
 function create() {
