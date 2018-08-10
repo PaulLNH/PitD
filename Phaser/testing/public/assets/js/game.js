@@ -113,6 +113,7 @@ function create() {
 
   // Creates a new player at the spawnpoint location with the random team from above
   player = this.physics.add.sprite(sp1.x, sp1.y, team);
+  player.username = "Paul";
   player.body.setSize(16, 10, false);
   // x, y, width, height
   player.body.setOffset(0, 22, 16, 5);
