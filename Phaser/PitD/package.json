@@ -1,15 +1,16 @@
 {
-  "name": "pitd",
+  "name": "PitD",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
+  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "colyseus": "^0.9.13",
-    "express": "^4.16.3"
+    "colyseus": "^0.9.13"
   }
 }
