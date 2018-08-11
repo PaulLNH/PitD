@@ -1,0 +1,20 @@
+.app {
+  height: 100vh;
+}
+
+.bottom {
+  height: 150px;
+  text-align: center;
+}
+
+.card {
+  padding: 10px;
+  background-color: rgba(34, 34, 34, 0.5);
+  color: white;
+  border: none;
+  margin: auto;
+}
+
+.stats {
+  text-align: center;
+}
