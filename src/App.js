@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import './App.css';
 import Wrapper from "./components/Wrapper";
+import Modal from "./components/Modal";
 import Button from "./components/Button";
 import Canvas from "./components/Canvas";
 import Live from "./components/Live";
@@ -12,26 +13,28 @@ import Video from "./components/Video";
 class App extends Component {
 
  // Setting this.state.friends to the friends json array
-  state = {
-    
+  constructor(props) {
+    super(props);
+    this.state={
+      show_modal: false
+    }
+  
   };
 
-  addImage = id => {
-    // Filter this.state.friends for friends with an id not equal to the id being removed
-    // const cards = this.state.cards.filter(card => card.id !== id);
-    // Set this.state.friends equal to the new friends array
-    // this.setState({ cards });
+  showModal = () => {
+    this.setState({show_modal:true});
+    console.log('here here');
   };
 
   updateDraw = () => {
-    console.log("here")
+    // console.log("here")
       var ctx = document.getElementById("back");
       var ctxv = ctx.getContext("2d");
-      console.log(ctxv);
+      // console.log(ctxv);
       var WIDTH = ctx.offsetWidth;
       var HEIGHT = ctx.offsetHeight;
-      console.log(WIDTH);
-      console.log(HEIGHT);
+      // console.log(WIDTH);
+      // console.log(HEIGHT);
 
       ctxv.clearRect(0, 0, WIDTH, HEIGHT);
       ctxv.globalAlpha = 0.5;
@@ -85,8 +88,10 @@ class App extends Component {
       <Router>
         <Button
         updateDraw={this.updateDraw}
+        showModal={this.showModal}
         >Login</Button>
       </Router>
+      {this.state.show_modal && <Modal/>}
       <Wrapper className="screen">
         <div className="video"><Video/>
         </div>
