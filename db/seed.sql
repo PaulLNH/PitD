@@ -1,0 +1,1 @@
+-- INSERT INTO `users` (`id`,`username`,`password`,`highscore`,`createdAt`,`updatedAt`) VALUES (1,'Ian','12345',350,'2018-07-09 17:13:09','2018-07-09 17:13:09');
