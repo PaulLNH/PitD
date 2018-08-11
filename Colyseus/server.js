@@ -1,3 +1,5 @@
+// To get this to work run npm i colyseus
+// node server.js
 const { Server, Room } = require("colyseus");
 const { createServer } = require("http");
 const PORT = process.env.PORT || 4000;
@@ -12,6 +14,8 @@ class ExampleRoom extends Room {
     console.log(`client ${client.id} joined`)
   }
 }
+
+gameServer.register("battle", ExampleRoom);
 
 gameServer.listen(PORT);
 
