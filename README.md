@@ -1,2 +1,1 @@
-# PitD
-Panic In The Dark
+# pitd-db-dev

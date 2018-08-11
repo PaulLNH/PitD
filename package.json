@@ -1,0 +1,22 @@
+{
+  "name": "db-dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "crypto": "^1.0.1",
+    "express": "^4.16.3",
+    "jwt-decode": "^2.2.0",
+    "jwt-express": "^1.1.0",
+    "mysql2": "^1.6.1",
+    "path": "^0.12.7",
+    "request": "^2.87.0",
+    "sequelize": "^4.38.0"
+  }
+}
