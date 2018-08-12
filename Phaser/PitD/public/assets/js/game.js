@@ -100,7 +100,6 @@ function create() {
     //////////////////////////////////////////////////////////////////////////////
 
     ///// START PLAYER CONTROLLER /////
-
     var self = this;
     this.socket = io();
     this.otherPlayers = this.physics.add.group();
@@ -117,13 +116,14 @@ function create() {
     this.socket.on('newPlayer', function (playerInfo) {
         addOtherPlayers(self, playerInfo);
     });
-    // this.socket.on('disconnect', function (playerId) {
-    //     self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-    //         if (playerId === otherPlayer.playerId) {
-    //             otherPlayer.destroy();
-    //         }
-    //     });
-    // });
+
+    this.socket.on('disconnect', function (playerId) {
+        self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+            if (playerId === otherPlayer.playerId) {
+                otherPlayer.destroy();
+            }
+        });
+    });
 
     this.socket.on('playerMoved', function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
@@ -139,7 +139,7 @@ function create() {
     ///// START ANIMATIONS ////
     this.anims.create({
         key: "left",
-        frames: this.anims.generateFrameNumbers(this.player.team, {
+        frames: this.anims.generateFrameNumbers("human", {
             start: 3,
             end: 5
         }),
@@ -150,7 +150,7 @@ function create() {
     this.anims.create({
         key: "turn",
         frames: [{
-            key: this.player.team,
+            key: "human",
             frame: 2
         }],
         frameRate: 20
@@ -158,7 +158,7 @@ function create() {
 
     this.anims.create({
         key: "right",
-        frames: this.anims.generateFrameNumbers(self.player.team, {
+        frames: this.anims.generateFrameNumbers("human", {
             start: 6,
             end: 8
         }),
@@ -168,7 +168,7 @@ function create() {
 
     this.anims.create({
         key: "up",
-        frames: this.anims.generateFrameNumbers(self.player.team, {
+        frames: this.anims.generateFrameNumbers("human", {
             start: 9,
             end: 11
         }),
@@ -178,7 +178,7 @@ function create() {
 
     this.anims.create({
         key: "down",
-        frames: this.anims.generateFrameNumbers(self.player.team, {
+        frames: this.anims.generateFrameNumbers("human", {
             start: 0,
             end: 2
         }),
@@ -251,18 +251,18 @@ function update() {
         }
 
         if (this.player.body.velocity.x > 0) {
-            self.player.anims.play("right", true);
+            this.player.anims.play("right", true);
         } else if (this.player.body.velocity.x < 0) {
-            self.player.anims.play("left", true);
+            this.player.anims.play("left", true);
         }
 
         if (this.player.body.velocity.x == 0) {
             if (this.player.body.velocity.y < 0) {
-                self.player.anims.play("up", true);
+                this.player.anims.play("up", true);
             } else if (this.player.body.velocity.y > 0) {
-                self.player.anims.play("down", true);
+                this.player.anims.play("down", true);
             } else {
-                self.player.anims.stop();
+                this.player.anims.stop();
             }
         }
 
@@ -374,18 +374,16 @@ function render() {
 }
 
 function addPlayer(self, playerInfo) {
-    // console.log(`addPlayer playerInfo: ${JSON.stringify(playerInfo)}`);
     // Creates a new player sprite with physics at the server generated random spawn and team
     self.player = self.physics.add.sprite(playerInfo.x, playerInfo.y, playerInfo.team);
     // Assigns the username to the clients player based on username from server
-    // self.player.username = playerInfo.username;
-    console.log(`Username: ${playerInfo.username}`);
+    self.player.username = playerInfo.username;
+    self.player.team = playerInfo.team;
     // Sets the hitbox for the player, and centers it false
     self.player.body.setSize(16, 10, false);
     // Offsets the players hitbox based on below params
     // x, y, width, height
     self.player.body.setOffset(0, 22, 16, 5);
-
     // Player name above head
     self.player.usernameText = self.add.text(playerInfo.x, playerInfo.y, self.player.username, {
         fontFamily: "Helvetica",
@@ -399,8 +397,6 @@ function addPlayer(self, playerInfo) {
     self.physics.add.collider(self.player, collisionLayer);
     // Prevents player from walking off the map
     self.player.setCollideWorldBounds(true);
-    // Logs what the new player body is
-    // console.log(self.player.body);
 }
 
 function addOtherPlayers(self, playerInfo) {

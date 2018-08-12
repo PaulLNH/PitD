@@ -74,13 +74,13 @@ io.on('connection', socket => {
     // update all other players of the new player
     socket.broadcast.emit('newPlayer', players[socket.id]);
 
-    // // when a player disconnects, remove them from our players object
-    // socket.on('disconnect', () => {
-    //     console.log(`${socket.id} has left the game.`);
-    //     delete players[socket.id];
-    //     // emit a message to all players to remove this player
-    //     io.emit('disconnect', socket.id);
-    // });
+    // when a player disconnects, remove them from our players object
+    socket.on('disconnect', () => {
+        console.log(`${socket.id} has left the game.`);
+        delete players[socket.id];
+        // emit a message to all players to remove this player
+        io.emit('disconnect', socket.id);
+    });
 
     // when a player moves, update the player data
     socket.on('playerMovement', movementData => {
