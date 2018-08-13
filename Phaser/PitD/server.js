@@ -60,6 +60,8 @@ io.on('connection', socket => {
         playerId: socket.id,
         x: 163,
         y: 92,
+        oldX: 163,
+        oldY: 92,
         // sp: randomSpawn(),
         team: assignTeam(),
         speed: 100
@@ -84,6 +86,8 @@ io.on('connection', socket => {
 
     // when a player moves, update the player data
     socket.on('playerMovement', movementData => {
+        players[socket.id].oldX = movementData.oldX;
+        players[socket.id].oldY = movementData.oldY;
         players[socket.id].x = movementData.x;
         players[socket.id].y = movementData.y;
         // emit a message to all players about the player that moved
