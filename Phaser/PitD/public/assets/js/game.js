@@ -1,6 +1,7 @@
 ////////////////// TODO: 
-// - Listen to timer event and display time to user
+// - Listen to timer event and display time to user "START TIMER"
 // - Listen for state of zombiesHunting and display to user
+// - Players able to tag one another ""
 // - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
 
 const config = {
@@ -111,6 +112,12 @@ function create() {
     var self = this;
     this.socket = io();
     this.otherPlayers = this.physics.add.group();
+    // this.zombies = this.physics.add.staticGroup({
+    //     key: 'zombies'
+    // });
+    // this.humans = this.physics.add.staticGroup({
+    //     key: 'humans'
+    // });
     this.socket.on("currentPlayers", function (players) {
         Object.keys(players).forEach(function (id) {
             if (players[id].playerId === self.socket.id) {
@@ -134,6 +141,7 @@ function create() {
     });
 
     //////// PLAYERS TAGGING ONE ANOTHER ///////
+    // See below in playerMoved block
     // Adding physics overlap between self and other
     // self.physics.add.overlap(self.player, self.otherPlayers, function () {
     //     this.socket.emit('playerTagged');
@@ -190,8 +198,12 @@ function create() {
                     otherPlayer.anims.stop();
                 }
             }
+            //////// PLAYERS TAGGING ONE ANOTHER ///////
             self.physics.add.overlap(self.player, self.otherPlayer, function () {
-                var headToHead = {player1: self.player, player2: self.otherPlayer};
+                var headToHead = {
+                    player1: self.player,
+                    player2: self.otherPlayer
+                };
                 console.log(`${self.player.name} and ${self.otherPlayer.name} collided`);
                 this.socket.emit('playerTagged', headToHead);
             }, null, self);
@@ -316,6 +328,17 @@ function create() {
         self.redScoreText.setText('Zombie: ' + scores.zombie);
     });
     //// END SCORE UPDATE ////
+
+    //// START TIMER ////
+    this.timerText = this.add.text(200, 3, '', {
+        fontSize: '32px',
+        fill: '#FFFFFF'
+    });
+
+    this.socket.on('timerUpdate', function (time) {
+        self.blueScoreText.setText('Human: ' + scores.human);
+    });
+    //// END TIMER ////
 
     // Darkness mask
     var dark = self.add.image(0, 0, "dark");
@@ -460,6 +483,7 @@ function addPlayer(self, playerInfo) {
         username: playerInfo.username,
         team: playerInfo.team
     });
+
     // Sets the hitbox for the player, and centers it false
     self.player.body.setSize(16, 10, false);
     // Offsets the players hitbox based on below params
@@ -467,6 +491,7 @@ function addPlayer(self, playerInfo) {
     self.player.body.setOffset(0, 22, 16, 5);
     // Player name above head
     if (playerInfo.team == "human") {
+        // self.humans.add(slef.player);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
@@ -478,6 +503,7 @@ function addPlayer(self, playerInfo) {
             }
         );
     } else {
+        // self.zombies.add(slef.player);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
