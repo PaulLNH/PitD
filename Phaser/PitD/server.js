@@ -60,8 +60,7 @@ io.on('connection', socket => {
         playerId: socket.id,
         x: 163,
         y: 92,
-        oldX: 163,
-        oldY: 92,
+        directionMoving: "none",
         // sp: randomSpawn(),
         team: assignTeam(),
         speed: 100
@@ -86,8 +85,7 @@ io.on('connection', socket => {
 
     // when a player moves, update the player data
     socket.on('playerMovement', movementData => {
-        players[socket.id].oldX = movementData.oldX;
-        players[socket.id].oldY = movementData.oldY;
+        players[socket.id].directionMoving = movementData.directionMoving;
         players[socket.id].x = movementData.x;
         players[socket.id].y = movementData.y;
         // emit a message to all players about the player that moved
@@ -107,7 +105,7 @@ io.on('connection', socket => {
     // });
 });
 
-function randomSpawn () {
+function randomSpawn() {
     var spawn;
     var spMax = _.keys(masterSpawn).length;
     spawn = masterSpawn[Math.floor(Math.floor(Math.random() * (spMax - 0 + 1)) + 0)];
@@ -115,7 +113,7 @@ function randomSpawn () {
     return spawn
 }
 
-function assignTeam () {
+function assignTeam() {
     var team = (Math.floor(Math.random() * 2) == 0) ? 'human' : 'zombie';
     console.log(`on team: ${team}`);
     return team

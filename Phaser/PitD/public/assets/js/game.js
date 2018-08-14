@@ -132,8 +132,51 @@ function create() {
     this.socket.on("playerMoved", function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
             if (playerInfo.playerId === otherPlayer.playerId) {
-                otherPlayer.setRotation(playerInfo.rotation);
+                // Moves other players around
                 otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+                // Animate other player
+                console.log(`Player (${playerInfo.team}) is moving: ${playerInfo.directionMoving}`);
+                // this.player is moving right
+                if (playerInfo.directionMoving == "right") {
+                    if (playerInfo.team == "human") {
+                        otherPlayer.anims.play("humanRight", true);
+                    } else {
+                        otherPlayer.anims.play("zombieRight", true);
+                    }
+                    // this.player is moving left
+                } else if (playerInfo.directionMoving == "left") {
+                    if (playerInfo.team == "human") {
+                        otherPlayer.anims.play("humanLeft", true);
+                    } else {
+                        otherPlayer.anims.play("zombieLeft", true);
+                    }
+                }
+
+                // this.player is not moving left or right
+                if (playerInfo.directionMoving !== "right" && playerInfo.directionMoving !== "left") {
+                    // this.player is moving up
+                    if (playerInfo.directionMoving == "up") {
+                        if (playerInfo.team == "human") {
+                            otherPlayer.anims.play("humanUp", true);
+                        } else {
+                            otherPlayer.anims.play("zombieUp", true);
+                        }
+                        // this.player is moving down
+                    } else if (playerInfo.directionMoving == "down") {
+                        if (playerInfo.team == "human") {
+                            otherPlayer.anims.play("humanDown", true);
+                        } else {
+                            otherPlayer.anims.play("zombieDown", true);
+                        }
+                        // this.player is not moving left, right, up or down
+                    } else {
+                        // this.player.anims.stop();
+                    }
+                }
+
+                if (playerInfo.directionMoving == "none") {
+                    otherPlayer.anims.stop();
+                }
             }
         });
     });
@@ -255,20 +298,50 @@ function create() {
 }
 
 function update() {
+
     if (this.player) {
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
+
+        // If a player is not pressing anything, stop their directionMoving
+        if (!this.cursors.left.isDown && !this.left.isDown && !this.cursors.right.isDown && !this.right.isDown && !this.cursors.up.isDown && !this.up.isDown && !this.cursors.down.isDown && !this.down.isDown) {
+            this.player.setData({
+                directionMoving: "none"
+            });
+            // console.log(`Player not pressing a direction`);
+        }
+
+        // Player is pressing left
         if (this.cursors.left.isDown || this.left.isDown) {
             this.player.setVelocityX(-speed);
+            this.player.setData({
+                directionMoving: "left"
+            });
+            // console.log(`Pressing left`);
         } else if (this.cursors.right.isDown || this.right.isDown) {
             this.player.setVelocityX(speed);
+            this.player.setData({
+                directionMoving: "right"
+            });
+            // console.log(`Pressing right`);
         }
 
         if (this.cursors.up.isDown || this.up.isDown) {
             this.player.setVelocityY(-speed);
+            this.player.setData({
+                directionMoving: "up"
+            });
+            // console.log(`Pressing up`);
         } else if (this.cursors.down.isDown || this.down.isDown) {
             this.player.setVelocityY(speed);
+            this.player.setData({
+                directionMoving: "down"
+            });
+            // console.log(`Pressing down`);
         }
+
+        this.player.setDataEnabled();
+        // Assigns the username to the clients player based on username from server
 
         // this.player is moving right
         if (this.player.body.velocity.x > 0) {
@@ -319,8 +392,7 @@ function update() {
             (x !== this.player.oldPosition.x || y !== this.player.oldPosition.y)
         ) {
             this.socket.emit("playerMovement", {
-                oldX: this.player.oldPosition.x,
-                oldY: this.player.oldPosition.y,
+                directionMoving: this.player.data.values.directionMoving,
                 x: this.player.x,
                 y: this.player.y
             });
