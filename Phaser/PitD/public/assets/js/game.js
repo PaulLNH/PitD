@@ -1,4 +1,7 @@
-// run 'http-server' in terminal to test
+////////////////// TODO: 
+// - Listen to timer event and display time to user
+// - Listen for state of zombiesHunting and display to user
+// - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
 
 const config = {
     type: Phaser.AUTO, // Which renderer to use
@@ -29,7 +32,7 @@ var collisionLayer;
 const speed = 100;
 
 // Set to true to display collision debugging layer
-let showDebug = false;
+let showDebug = true;
 // var username = "Paul";
 var usernameText;
 var spotlight;
@@ -54,6 +57,7 @@ function preload() {
 //////////////////////// CREATE ///////////////////////////
 // Loads elements into Phaser's cache (i.e. the name you used in preload)
 function create() {
+    // Initialize WASD controlls
     this.left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
     this.right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
@@ -129,13 +133,21 @@ function create() {
         });
     });
 
+    //////// PLAYERS TAGGING ONE ANOTHER ///////
+    // Adding physics overlap between self and other
+    // self.physics.add.overlap(self.player, self.otherPlayers, function () {
+    //     this.socket.emit('playerTagged');
+    // }, null, self);
+
     this.socket.on("playerMoved", function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
             if (playerInfo.playerId === otherPlayer.playerId) {
+                /////////// TODO: Fix the text for other players
+                // otherPlayer.usernameText.x = otherPlayer.x - playerInfo.usernameText.displayWidth / 2;
+                // otherPlayer.usernameText.y = otherPlayer.y - otherPlayer.height + 5;
                 // Moves other players around
                 otherPlayer.setPosition(playerInfo.x, playerInfo.y);
                 // Animate other player
-                console.log(`Player (${playerInfo.team}) is moving: ${playerInfo.directionMoving}`);
                 // this.player is moving right
                 if (playerInfo.directionMoving == "right") {
                     if (playerInfo.team == "human") {
@@ -178,6 +190,11 @@ function create() {
                     otherPlayer.anims.stop();
                 }
             }
+            self.physics.add.overlap(self.player, self.otherPlayer, function () {
+                var headToHead = {player1: self.player, player2: self.otherPlayer};
+                console.log(`${self.player.name} and ${self.otherPlayer.name} collided`);
+                this.socket.emit('playerTagged', headToHead);
+            }, null, self);
         });
     });
 
@@ -284,6 +301,22 @@ function create() {
     });
     //// END ANIMATIONS ////
 
+    //// START SCORE UPDATE ////
+    this.blueScoreText = this.add.text(16, 3, '', {
+        fontSize: '32px',
+        fill: '#0000FF'
+    });
+    this.redScoreText = this.add.text(425, 3, '', {
+        fontSize: '32px',
+        fill: '#FF0000'
+    });
+
+    this.socket.on('scoreUpdate', function (scores) {
+        self.blueScoreText.setText('Human: ' + scores.human);
+        self.redScoreText.setText('Zombie: ' + scores.zombie);
+    });
+    //// END SCORE UPDATE ////
+
     // Darkness mask
     var dark = self.add.image(0, 0, "dark");
     dark.setDepth(30);
@@ -298,8 +331,9 @@ function create() {
 }
 
 function update() {
-
     if (this.player) {
+        this.player.usernameText.x = this.player.x - this.player.usernameText.width / 2;
+        this.player.usernameText.y = this.player.y - this.player.height + 5;
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
 
@@ -411,12 +445,15 @@ function render() {
 }
 
 function addPlayer(self, playerInfo) {
+    console.log(`Player created at x: ${playerInfo.sp.x}, y: ${playerInfo.sp.y}`)
     // Creates a new player sprite with physics at the server generated random spawn and team
     self.player = self.physics.add.sprite(
-        playerInfo.x,
-        playerInfo.y,
+        playerInfo.sp.x,
+        playerInfo.sp.y,
         playerInfo.team
     );
+    self.player.name = playerInfo.username;
+    console.log(self.player);
     self.player.setDataEnabled();
     // Assigns the username to the clients player based on username from server
     self.player.setData({
@@ -429,16 +466,30 @@ function addPlayer(self, playerInfo) {
     // x, y, width, height
     self.player.body.setOffset(0, 22, 16, 5);
     // Player name above head
-    self.player.usernameText = self.add.text(
-        playerInfo.x,
-        playerInfo.y,
-        self.player.name, {
-            fontFamily: "Helvetica",
-            fontSize: 12,
-            color: "#ff0044",
-            fontWeight: "bold"
-        }
-    );
+    if (playerInfo.team == "human") {
+        self.player.usernameText = self.add.text(
+            self.player.x,
+            self.player.y,
+            self.player.name, {
+                fontFamily: "Helvetica",
+                fontSize: 12,
+                color: "#0000FF",
+                fontWeight: "bold"
+            }
+        );
+    } else {
+        self.player.usernameText = self.add.text(
+            self.player.x,
+            self.player.y,
+            self.player.name, {
+                fontFamily: "Helvetica",
+                fontSize: 12,
+                color: "#ff0044",
+                fontWeight: "bold"
+            }
+        );
+    }
+
     // Ensures the text is above all the world layer but below the shroud layer
     self.player.usernameText.setDepth(25);
     // Prevents player from walking through collision layer
@@ -455,4 +506,22 @@ function addOtherPlayers(self, playerInfo) {
     );
     otherPlayer.playerId = playerInfo.playerId;
     self.otherPlayers.add(otherPlayer);
+}
+
+
+//// WORK IN PROGRESS ////
+function playerSpawnLocation() {
+    for (var i in Player.list) {
+        if (Player.list[i].id !== self.id) {
+            if (testCollisionRectRect(self, Player.list[i])) {
+                console.log("Player too close");
+
+                var spawnIndex = Math.floor(Math.random() * spawnPoints.length);
+                console.log(spawnIndex);
+                self.x = spawnPoints[spawnIndex][0];
+                self.y = spawnPoints[spawnIndex][1];
+                self.spawnLocation()
+            }
+        }
+    }
 }

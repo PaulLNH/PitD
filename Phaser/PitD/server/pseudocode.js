@@ -1,3 +1,26 @@
+////////// SPAWN POINT LOGIC ///////////////
+
+self.spawnLocation = function () {
+    for (var i in Player.list) {
+        if (Player.list[i].id !== self.id) {
+            if (testCollisionRectRect(self, Player.list[i])) {
+                console.log("Player too close");
+
+                var spawnIndex = Math.floor(Math.random() * spawnPoints.length);
+                console.log(spawnIndex);
+                self.x = spawnPoints[spawnIndex][0];
+                self.y = spawnPoints[spawnIndex][1];
+                self.spawnLocation()
+            }
+        }
+    }
+}
+
+
+
+
+
+////////////////////// PLAYER ANiMATIONS ////////////////////////////
 // For each player that moves it sends data to the server about it's movement
 // The server stores the old values and the new values and packages it up into
 // a playerMoved broadcast with that players key and the players object
