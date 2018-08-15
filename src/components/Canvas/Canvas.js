@@ -1,13 +1,19 @@
 import React from "react";
 import "./Canvas.css";
 
-const Canvas = props => (
+const Canvas = props => {
+  // console.log(props);
+  // console.log(props.updateDraw);
+  // console.log(props);
+  // let width = props.width;
+  return (
     <div>
-      <canvas id="back" onMouseMove={() => props.updateDraw()}>
+      <canvas id="back" width={props.width} height={props.height}>
       </canvas>
     </div>
-);
-
+  )
+};
+// onMouseMove={() => props.updateDraw}
 
 // function draw(data, i) {
 //     let x = data.player[i].x;

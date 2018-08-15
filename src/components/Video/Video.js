@@ -3,8 +3,10 @@ import "./Video.css";
 
 const Video = props => (
   <div className="vid">
-      <video width="400" height="300" controls><source src="https://www.youtube.com/watch?v=TIKfXjxwWM0" type="video/mp4"></source></video>
+      <video width="400" height="300" controls><source src="" type="video/mp4"></source></video>
   </div>
 );
+
+// https://www.youtube.com/watch?v=TIKfXjxwWM0
 
 export default Video;
