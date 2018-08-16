@@ -37,14 +37,14 @@ let showDebug = false;
 // var username = "Paul";
 var usernameText;
 var spotlight;
+var dark;
 
 //////////////////////// PRELOAD ///////////////////////////
 // This runs once before anything else, loads up assets like images and audio
 function preload() {
     this.load.image("tiles", "../assets/tilesets/tilesets.png");
     this.load.tilemapTiledJSON("map", "../assets/tilemaps/map.json");
-    // this.load.image("dark", "assets/sprites/dark.png");
-    this.load.image("mask", "assets/sprites/mask.png");
+    this.load.image("dark", "assets/sprites/dark.png");
     this.load.spritesheet("human", "../assets/sprites/human.png", {
         frameWidth: 16, // 16px human width
         frameHeight: 32
@@ -53,6 +53,7 @@ function preload() {
         frameWidth: 20, // 20px zombie width
         frameHeight: 32
     });
+    this.load.image("mask", "assets/sprites/mask.png");
 }
 
 //////////////////////// CREATE ///////////////////////////
@@ -141,6 +142,19 @@ function create() {
             }
         });
     });
+
+    // Darkness mask
+    dark = self.add.image(0, 0, "dark");
+    spotlight = self.make.sprite({
+        x: 0,
+        y: 0,
+        key: "mask",
+        add: true
+    });
+    spotlight.setScale(0.5);
+    dark.mask = new Phaser.Display.Masks.BitmapMask(self, spotlight);
+    dark.setDepth(35);
+    console.log(dark);
 
     //////// PLAYERS TAGGING ONE ANOTHER ///////
     // See below in playerMoved block
@@ -358,6 +372,8 @@ function create() {
         fill: "#FFFFFF"
     });
 
+    self.redScoreText.setText("Time: 10");
+
     var timeLeft = 10;
 
     this.socket.on("timerUpdate", function (time) {
@@ -381,17 +397,11 @@ function create() {
     });
     //// END TIMER ////
 
-    // Darkness mask
-    var dark = self.add.image(0, 0, "dark");
-    dark.setDepth(30);
-    spotlight = self.make.sprite({
-        x: 0,
-        y: 0,
-        key: "mask",
-        add: false
-    });
-    spotlight.setScale(0.5);
-    dark.mask = new Phaser.Display.Masks.BitmapMask(self, spotlight);
+
+    // console.log(`Darkness mask: ${dark}`);
+    // console.log(`Player: ${self.player}`);
+    // self.dark.x = self.player.x;
+    // self.dark.y = self.player.y;
 }
 
 function update() {
@@ -399,6 +409,12 @@ function update() {
         this.player.usernameText.x =
             this.player.x - this.player.usernameText.width / 2;
         this.player.usernameText.y = this.player.y - this.player.height + 5;
+        // console.log(`Darkness mask: ${dark}`);
+        // console.log(`Player: ${this.player}`);
+        dark.x = this.player.x;
+        dark.y = this.player.y;
+        spotlight.x = this.player.x;
+        spotlight.y = this.player.y;
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
 
