@@ -8,6 +8,7 @@ import Canvas from "./components/Canvas";
 import Live from "./components/Live";
 import Overview from "./components/Overview";
 import Video from "./components/Video";
+import images from "./images.json"
 // import ReactCursorPosition from 'react-cursor-position';
 // import { height } from 'window-size';
 
@@ -19,7 +20,8 @@ class App extends Component {
     this.state={
       show_modal: false,
       width: 0,
-      height: 0
+      height: 0,
+      images
       // x: 0, 
       // y: 0
     }
@@ -29,6 +31,7 @@ class App extends Component {
   componentDidMount() {
     this.updateWindowDimensions();
     window.addEventListener('resize', this.updateWindowDimensions);
+    // this.updateDraw(event);
   }
   
   componentWillUnmount() {
@@ -73,10 +76,10 @@ class App extends Component {
     // console.log(`Width = ${WIDTH}, Height = ${HEIGHT}`);
     let default_gco = ctxv.globalCompositeOperation;
 
-    let vision_rd = 100;
+    let vision_rd = 150;
 
     ctxv.clearRect(0, 0, WIDTH, HEIGHT);
-    ctxv.globalAlpha = .8;
+    ctxv.globalAlpha = .7;
     ctxv.fillStyle = "black";
     ctxv.fillRect(0, 0, WIDTH, HEIGHT);
     ctxv.globalCompositeOperation = "destination-out";
@@ -113,8 +116,9 @@ class App extends Component {
       <Router>
         <Button
           // updateDraw={this.updateDraw}
+          image={this.state.images}
           showModal={this.showModal}
-        >Login</Button>
+        ></Button>
       </Router>
       {this.state.show_modal && <Modal/>}
       <Wrapper className="screen">
