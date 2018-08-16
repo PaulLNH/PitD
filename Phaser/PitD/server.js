@@ -45,23 +45,26 @@ const masterSpawn = [{
 ]
 
 ////////////////// TODO: 
-// - Create an interval timer on the server
+// - Create an interval timer on the server (current timer can't go inside the socket connection or it gets faster the more players that are connected)
 // - Switch state of zombiesHunting based on timer
 // - Form validation on names: min 1, max 8, 
 
 var timeLeft = 10;
 
-var timerId = setInterval(countDown, 1000);
+// Timer
+// var timerId = setInterval(countDown, 1000);
 
-function countDown() {
-  if (timeLeft == 0) {
-    clearTimeout(timerId);
-    timeLeft = maxTimePerRound;
-    // Logic to emit the timer has reset
-  } else {
-    timeLeft--;
-  }
-}
+// function countDown() {
+//     if (timeLeft == 10) socket.emit('scoreUpdate', timeLeft);
+//     if (timeLeft == 0) {
+//         clearTimeout(timerId);
+//         timeLeft = maxTimePerRound;
+//         timerId = setInterval(countDown, 1000);
+//     } else {
+//         timeLeft--;
+//         console.log(timeLeft);
+//     }
+// }
 
 var scores = {
     human: 10,

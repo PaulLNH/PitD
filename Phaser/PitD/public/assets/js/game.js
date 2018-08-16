@@ -1,4 +1,4 @@
-////////////////// TODO: 
+////////////////// TODO:
 // - Listen to timer event and display time to user "START TIMER"
 // - Listen for state of zombiesHunting and display to user
 // - Players able to tag one another ""
@@ -111,13 +111,15 @@ function create() {
     ///// START PLAYER CONTROLLER /////
     var self = this;
     this.socket = io();
+
     this.otherPlayers = this.physics.add.group();
-    // this.zombies = this.physics.add.staticGroup({
+    // var zombies = this.physics.add.group({
     //     key: 'zombies'
     // });
-    // this.humans = this.physics.add.staticGroup({
+    // var humans = this.physics.add.group({
     //     key: 'humans'
     // });
+
     this.socket.on("currentPlayers", function (players) {
         Object.keys(players).forEach(function (id) {
             if (players[id].playerId === self.socket.id) {
@@ -143,9 +145,19 @@ function create() {
     //////// PLAYERS TAGGING ONE ANOTHER ///////
     // See below in playerMoved block
     // Adding physics overlap between self and other
-    // self.physics.add.overlap(self.player, self.otherPlayers, function () {
-    //     this.socket.emit('playerTagged');
-    // }, null, self);
+    // if (self.player.team == "human") {
+    //     self.physics.add.overlap(self.player, zombies, function () {
+    //         console.log(`${self.player.name} has tagged somebody.`);
+    //         // this.socket.emit('playerTagged');
+    //     }, null, self);
+    // }
+
+    // if (self.player.team == "zombie") {
+    //     self.physics.add.overlap(self.player, humans, function () {
+    //         console.log(`${self.player.name} has tagged somebody.`);
+    //         // this.socket.emit('playerTagged');
+    //     }, null, self);
+    // }
 
     this.socket.on("playerMoved", function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
@@ -173,7 +185,10 @@ function create() {
                 }
 
                 // this.player is not moving left or right
-                if (playerInfo.directionMoving !== "right" && playerInfo.directionMoving !== "left") {
+                if (
+                    playerInfo.directionMoving !== "right" &&
+                    playerInfo.directionMoving !== "left"
+                ) {
                     // this.player is moving up
                     if (playerInfo.directionMoving == "up") {
                         if (playerInfo.team == "human") {
@@ -199,14 +214,22 @@ function create() {
                 }
             }
             //////// PLAYERS TAGGING ONE ANOTHER ///////
-            self.physics.add.overlap(self.player, self.otherPlayer, function () {
-                var headToHead = {
-                    player1: self.player,
-                    player2: self.otherPlayer
-                };
-                console.log(`${self.player.name} and ${self.otherPlayer.name} collided`);
-                this.socket.emit('playerTagged', headToHead);
-            }, null, self);
+            self.physics.add.overlap(
+                self.player,
+                self.otherPlayers,
+                function () {
+                    // var headToHead = {
+                    //     player1: self.player,
+                    //     player2: self.otherPlayer
+                    // };
+                    console.log(
+                        `${self.player.name} touched somebody`
+                    );
+                    // this.socket.emit("playerTagged", headToHead);
+                },
+                null,
+                self
+            );
         });
     });
 
@@ -314,29 +337,47 @@ function create() {
     //// END ANIMATIONS ////
 
     //// START SCORE UPDATE ////
-    this.blueScoreText = this.add.text(16, 3, '', {
-        fontSize: '32px',
-        fill: '#0000FF'
+    this.blueScoreText = this.add.text(16, 3, "", {
+        fontSize: "32px",
+        fill: "#0000FF"
     });
-    this.redScoreText = this.add.text(425, 3, '', {
-        fontSize: '32px',
-        fill: '#FF0000'
+    this.redScoreText = this.add.text(425, 3, "", {
+        fontSize: "32px",
+        fill: "#FF0000"
     });
 
-    this.socket.on('scoreUpdate', function (scores) {
-        self.blueScoreText.setText('Human: ' + scores.human);
-        self.redScoreText.setText('Zombie: ' + scores.zombie);
+    this.socket.on("scoreUpdate", function (scores) {
+        self.blueScoreText.setText("Human: " + scores.human);
+        self.redScoreText.setText("Zombie: " + scores.zombie);
     });
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
-    this.timerText = this.add.text(200, 3, '', {
-        fontSize: '32px',
-        fill: '#FFFFFF'
+    this.timerText = this.add.text(200, 3, "", {
+        fontSize: "32px",
+        fill: "#FFFFFF"
     });
 
-    this.socket.on('timerUpdate', function (time) {
-        self.blueScoreText.setText('Human: ' + scores.human);
+    var timeLeft = 10;
+
+    this.socket.on("timerUpdate", function (time) {
+        timeLeft = 10;
+        var timerId = setInterval(countDown, 1000);
+        // countDown(timeLeft);
+        // self.timerText.setText("Timer: " + time);
+        function countDown() {
+            if (timeLeft == 0) {
+                clearTimeout(timerId);
+                timeLeft = 10;
+                timerId();
+                // Logic to emit the timer has reset
+                // Swap hunt team
+            } else {
+                timeLeft--;
+                console.log(timeLeft);
+                this.timerText.setText("Timer: " + timeLeft);
+            }
+        }
     });
     //// END TIMER ////
 
@@ -355,13 +396,22 @@ function create() {
 
 function update() {
     if (this.player) {
-        this.player.usernameText.x = this.player.x - this.player.usernameText.width / 2;
+        this.player.usernameText.x =
+            this.player.x - this.player.usernameText.width / 2;
         this.player.usernameText.y = this.player.y - this.player.height + 5;
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
 
         // If a player is not pressing anything, stop their directionMoving
-        if (!this.cursors.left.isDown && !this.left.isDown && !this.cursors.right.isDown && !this.right.isDown && !this.cursors.up.isDown && !this.up.isDown && !this.cursors.down.isDown && !this.down.isDown) {
+        if (!this.cursors.left.isDown &&
+            !this.left.isDown &&
+            !this.cursors.right.isDown &&
+            !this.right.isDown &&
+            !this.cursors.up.isDown &&
+            !this.up.isDown &&
+            !this.cursors.down.isDown &&
+            !this.down.isDown
+        ) {
             this.player.setData({
                 directionMoving: "none"
             });
@@ -468,7 +518,7 @@ function render() {
 }
 
 function addPlayer(self, playerInfo) {
-    console.log(`Player created at x: ${playerInfo.sp.x}, y: ${playerInfo.sp.y}`)
+    console.log(`Player created at x: ${playerInfo.sp.x}, y: ${playerInfo.sp.y}`);
     // Creates a new player sprite with physics at the server generated random spawn and team
     self.player = self.physics.add.sprite(
         playerInfo.sp.x,
@@ -491,7 +541,8 @@ function addPlayer(self, playerInfo) {
     self.player.body.setOffset(0, 22, 16, 5);
     // Player name above head
     if (playerInfo.team == "human") {
-        // self.humans.add(slef.player);
+        // self.humans.add(self.player);
+        // console.log(`You has been added to the Humans team`);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
@@ -503,7 +554,8 @@ function addPlayer(self, playerInfo) {
             }
         );
     } else {
-        // self.zombies.add(slef.player);
+        // self.zombies.add(self.player);
+        // console.log(`You has been added to the Zombies team`);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
@@ -532,8 +584,14 @@ function addOtherPlayers(self, playerInfo) {
     );
     otherPlayer.playerId = playerInfo.playerId;
     self.otherPlayers.add(otherPlayer);
+    // if (playerInfo.team == "zombie") {
+    //     self.zombies.add(otherPlayer);
+    //     console.log(`${self.player.name} has been added to the Zombies team`);
+    // } else if (playerInfo.team == "humans") {
+    //     self.humans.add(otherPlayer);
+    //     console.log(`${self.player.name} has been added to the Humans team`);
+    // }
 }
-
 
 //// WORK IN PROGRESS ////
 function playerSpawnLocation() {
@@ -546,8 +604,20 @@ function playerSpawnLocation() {
                 console.log(spawnIndex);
                 self.x = spawnPoints[spawnIndex][0];
                 self.y = spawnPoints[spawnIndex][1];
-                self.spawnLocation()
+                self.spawnLocation();
             }
         }
     }
 }
+
+// function countDown(timeLeft) {
+//     if (timeLeft == 0) {
+//         clearTimeout(timerId);
+//         timeLeft = 10;
+//         // Logic to emit the timer has reset
+//         // Swap hunt team
+//     } else {
+//         timeLeft--;
+//         this.timerText.setText("Timer: " + timeLeft);
+//     }
+// }
