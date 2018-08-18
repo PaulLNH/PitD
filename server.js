@@ -45,7 +45,6 @@ const masterSpawn = [{
 ]
 
 ////////////////// TODO: 
-// - Switch state of zombiesHunting based on timer
 // - Form validation on names: min 1, max 8, name case "_.startCase(_.toLower('UseRnaMe'))" Although this should be done when we gather the players username going into the database.
 
 var timeLeft = 10;

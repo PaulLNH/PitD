@@ -1,9 +1,5 @@
 ////////////////// TODO:
-// - Listen to timer event and display time to user "START TIMER"
-// - Listen for state of zombiesHunting and display to user
-// - Players able to tag one another ""
 // - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
-// - Otherplayers spawn on the client initially until they move. Check other player position upon creation
 
 const config = {
     type: Phaser.AUTO, // Which renderer to use
@@ -34,7 +30,7 @@ var collisionLayer;
 const speed = 100;
 
 // Set to true to display collision debugging layer
-let showDebug = true;
+let showDebug = false;
 var spotlight;
 var dark;
 var timer;
@@ -631,7 +627,6 @@ function addOtherPlayers(self, playerInfo) {
 
 function headToHead(player, enemy) {
     console.log("Head to Head is called");
-    // console.log(`Looks like the head to head function was called`);
     console.log(`Player: ${clientId}`);
     console.log(`OBJ: ${JSON.stringify(player)}`);
     if (player.data.values.team !== enemy.team) {
@@ -642,17 +637,4 @@ function headToHead(player, enemy) {
             this.socket.emit("characterDies", clientId);
         }
     }
-
-    // if (player.team == huntTeam) {
-    //     console.log(`${player.name} is on the hunting team and touched someone.`);
-    //     // First param is it is made inactive, second makes it invisible
-    //     enemy.disableBody(true, true);
-    // } else if (enemy.team == huntTeam) {
-    //     console.log(`${enemy.name} is on the hunting team and touched you.`);
-    //     player.disableBody(true, true);
-    // } else {
-    //     console.log(`Uh oh... something went wrong between ${player} and ${enemy}`);
-    // }
-
-    // return true;
 }
