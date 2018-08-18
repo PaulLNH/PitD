@@ -1,6 +1,11 @@
 ////////////////// TODO:
 // - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
 
+// const io = require('socket.io-client');
+// import io from 'socket.io-client';
+
+// const socket = io('http://localhost');
+
 const config = {
     type: Phaser.AUTO, // Which renderer to use
     width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
