@@ -1,14 +1,15 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require('jwt-express');
+const app = express();
 const env = process.env.NODE_ENV || "development";
 const config = require(`${__dirname}/config/config.json`)[env];
-const io = require('socket.io').listen(server);
+const server = require('http').Server(app);
 const _ = require('lodash');
 
 const PORT = process.env.PORT || 8080;
-const app = express();
 const db = require("./models");
+const io = require('socket.io').listen(server);
 // Express middleware
 app.use(bodyParser.urlencoded({
     extended: true

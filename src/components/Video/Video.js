@@ -8,6 +8,7 @@ const Video = props => {
     <div className="vid">
       <iframe width="400" height="300" src="https://www.youtube.com/embed/TIKfXjxwWM0" allow="autoplay; encrypted-media"></iframe>
       {/* <video width="400" height="300" controls><source src={intro} type="video/mp4"></source></video> */}
+      {/* <iframe src="game.html"></iframe> */}
     </div>
   )
 };
