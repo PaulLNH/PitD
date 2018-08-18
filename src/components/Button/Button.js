@@ -16,7 +16,7 @@ const Button = props => {
             <li className="col-6"><header>Panic in the Dark</header></li>
             <li className="col-3">
                 <div className="buttonDiv">
-                    <button className="btn">Play Now!</button>
+                    <button className="btn {props.showGame ? 'disabled' : ''}" onClick={() => props.playGame()}>Play Now!</button>
                 </div>
             </li>
         </ul>

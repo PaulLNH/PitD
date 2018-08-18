@@ -5,6 +5,7 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Button from "./components/Button";
 import Canvas from "./components/Canvas";
+import Game from "./components/Game";
 import Live from "./components/Live";
 import Overview from "./components/Overview";
 import Video from "./components/Video";
@@ -21,7 +22,8 @@ class App extends Component {
       show_modal: false,
       width: 0,
       height: 0,
-      images
+      images,
+      showGame: false
       // x: 0, 
       // y: 0
     }
@@ -44,6 +46,12 @@ class App extends Component {
 
   updateWindowDimensions() {
     this.setState({ width: window.innerWidth, height: window.innerHeight });
+  }
+
+  playGame = () => {
+    this.setState({
+      showGame: true
+    })
   }
   
   updateDraw = (event) => {
@@ -107,6 +115,14 @@ class App extends Component {
   
 
   render() {
+    const showGame = (this.state.showGame) ? <Game /> : <Wrapper className="screen">
+    <div className="video"><Video/>
+    </div>
+    <div className="bottom row">
+      <div className="col-6 mx-auto stats"><Overview/></div>
+      <div className="col-6 mx-auto stats"><Live/></div>
+    </div>
+  </Wrapper>
     return (
       <div className="app" onMouseMove={(event) => this.updateDraw(event)}>
       <Canvas 
@@ -116,19 +132,15 @@ class App extends Component {
       <Router>
         <Button
           // updateDraw={this.updateDraw}
+          showGame={showGame}
+          playGame={this.playGame}
           image={this.state.images}
           showModal={this.showModal}
         ></Button>
       </Router>
       {this.state.show_modal && <Modal/>}
-      <Wrapper className="screen">
-        <div className="video"><Video/>
-        </div>
-        <div className="bottom row">
-          <div className="col-6 mx-auto stats"><Overview/></div>
-          <div className="col-6 mx-auto stats"><Live/></div>
-        </div>
-      </Wrapper>
+      {showGame}
+      
       </div>
     );
   }
