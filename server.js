@@ -9,7 +9,7 @@ var games = {};
 var players = {};
 // Timer in seconds
 const maxTimePerRound = 10;
-var zombiesHunting = null;
+var huntTeam = "zombie";
 const masterSpawn = [{
         x: 163,
         y: 92
@@ -45,26 +45,35 @@ const masterSpawn = [{
 ]
 
 ////////////////// TODO: 
-// - Create an interval timer on the server (current timer can't go inside the socket connection or it gets faster the more players that are connected)
 // - Switch state of zombiesHunting based on timer
-// - Form validation on names: min 1, max 8, 
+// - Form validation on names: min 1, max 8, name case "_.startCase(_.toLower('UseRnaMe'))" Although this should be done when we gather the players username going into the database.
 
 var timeLeft = 10;
 
 // Timer
-// var timerId = setInterval(countDown, 1000);
+var countDown = function () {
+    if (timeLeft == 0) {
+        console.log(`Resetting timer`);
+        timeLeft = maxTimePerRound;
+        switch (huntTeam) {
+            case "human":
+                huntTeam = "zombie";
+                break;
+            case "zombie":
+                huntTeam = "human";
+                break;
+            default:
+                huntTeam = "zombie";
+        }
+    } else {
+        timeLeft--;
+        console.log(timeLeft);
+    }
+    console.log(huntTeam);
+    io.sockets.emit('timer', {timeLeft: timeLeft, huntTeam: huntTeam});
+}
 
-// function countDown() {
-//     if (timeLeft == 10) socket.emit('scoreUpdate', timeLeft);
-//     if (timeLeft == 0) {
-//         clearTimeout(timerId);
-//         timeLeft = maxTimePerRound;
-//         timerId = setInterval(countDown, 1000);
-//     } else {
-//         timeLeft--;
-//         console.log(timeLeft);
-//     }
-// }
+setInterval(countDown, 1000);
 
 var scores = {
     human: 10,
@@ -82,21 +91,25 @@ io.on('connection', socket => {
         let sp = masterSpawn;
         let i = _.keys(players).length;
         console.log(sp[i]);
+        // players(id).x = sp[i].x;
+        // players(id).y = sp[i].y;
         return sp[i]
     }
     // create a new player and add it to our players object
     // Username, Id, spawnPoint, team, 
     players[socket.id] = {
         // Form validation to display username as standard name case
-        username: _.startCase(_.toLower('PaUl')),
+        username: _.startCase(_.toLower(randUsername())),
         playerId: socket.id,
-        x: 163,
-        y: 92,
+        // x: 163,
+        // y: 92,
         directionMoving: "none",
         sp: getSpawn(),
         team: assignTeam(),
         speed: 100,
         score: 0,
+        usernameText: null,
+        time: timeLeft,
         spawnLocation: function (masterSpawn) {
             let sp = masterSpawn;
             let i = _.keys(players).length;
@@ -104,6 +117,14 @@ io.on('connection', socket => {
             return sp[i]
         }
     };
+    console.log(timeLeft);
+    // TODO:
+    // CANNOT USER IF STATEMENT HERE, ONLY SENDS ON CONNECTION.
+    // NEED TO FIND ANOTHER WAY TO SYNC CLIENTS TIMER
+    // if (resetTimer) {
+    //     console.log(`Emitting timer reset node`);
+    //     socket.emit('timerUpdate');
+    // }
 
     // send the players object to the new player
     socket.emit('currentPlayers', players);
@@ -129,6 +150,11 @@ io.on('connection', socket => {
         socket.broadcast.emit('playerMoved', players[socket.id]);
     });
 
+    socket.on('characterDies', id => {
+        console.log(`Looks like ${id}`);
+        io.emit('characterDied', id);
+    });
+
     socket.on('playerTagged', headToHead => {
         console.log(`Yup, server says we have collision! ${headToHead}`);
         if (players[socket.id].team === 'human') {
@@ -149,11 +175,16 @@ io.on('connection', socket => {
 //     return spawn
 // }
 
-
 function assignTeam() {
     var team = (Math.floor(Math.random() * 2) == 0) ? 'human' : 'zombie';
     console.log(`on team: ${team}`);
     return team
+}
+
+function randUsername() {
+    var name = (Math.floor(Math.random() * 2) == 0) ? 'Paul' : 'Jashan';
+    console.log(`random name: ${name}`);
+    return name
 }
 
 function getRandomInt(min, max) {

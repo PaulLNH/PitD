@@ -3,6 +3,7 @@
 // - Listen for state of zombiesHunting and display to user
 // - Players able to tag one another ""
 // - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
+// - Otherplayers spawn on the client initially until they move. Check other player position upon creation
 
 const config = {
     type: Phaser.AUTO, // Which renderer to use
@@ -33,11 +34,13 @@ var collisionLayer;
 const speed = 100;
 
 // Set to true to display collision debugging layer
-let showDebug = false;
-// var username = "Paul";
-var usernameText;
+let showDebug = true;
 var spotlight;
 var dark;
+var timer;
+var timeLeft = 10;
+var huntTeam = "";
+var clientId = "";
 
 //////////////////////// PRELOAD ///////////////////////////
 // This runs once before anything else, loads up assets like images and audio
@@ -64,6 +67,10 @@ function create() {
     this.right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
     this.up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
     this.down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+
+    // flashCamera = this.cameras.add(0, 0, 640, 480);
+    shakeCamera = this.cameras.add(0, 0, 640, 480);
+
     ///// START MAP AND COLLISION /////
     // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
     const map = this.make.tilemap({
@@ -113,13 +120,9 @@ function create() {
     var self = this;
     this.socket = io();
 
-    this.otherPlayers = this.physics.add.group();
-    // var zombies = this.physics.add.group({
-    //     key: 'zombies'
-    // });
-    // var humans = this.physics.add.group({
-    //     key: 'humans'
-    // });
+    this.otherPlayers = this.physics.add.group({
+        key: 'enemy'
+    });
 
     this.socket.on("currentPlayers", function (players) {
         Object.keys(players).forEach(function (id) {
@@ -139,6 +142,7 @@ function create() {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
             if (playerId === otherPlayer.playerId) {
                 otherPlayer.destroy();
+                otherPlayer.usernameText.destroy();
             }
         });
     });
@@ -154,33 +158,17 @@ function create() {
     spotlight.setScale(0.5);
     dark.mask = new Phaser.Display.Masks.BitmapMask(self, spotlight);
     dark.setDepth(35);
-    console.log(dark);
 
-    //////// PLAYERS TAGGING ONE ANOTHER ///////
-    // See below in playerMoved block
-    // Adding physics overlap between self and other
-    // if (self.player.team == "human") {
-    //     self.physics.add.overlap(self.player, zombies, function () {
-    //         console.log(`${self.player.name} has tagged somebody.`);
-    //         // this.socket.emit('playerTagged');
-    //     }, null, self);
-    // }
 
-    // if (self.player.team == "zombie") {
-    //     self.physics.add.overlap(self.player, humans, function () {
-    //         console.log(`${self.player.name} has tagged somebody.`);
-    //         // this.socket.emit('playerTagged');
-    //     }, null, self);
-    // }
 
     this.socket.on("playerMoved", function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
             if (playerInfo.playerId === otherPlayer.playerId) {
-                /////////// TODO: Fix the text for other players
-                // otherPlayer.usernameText.x = otherPlayer.x - playerInfo.usernameText.displayWidth / 2;
-                // otherPlayer.usernameText.y = otherPlayer.y - otherPlayer.height + 5;
+                otherPlayer.usernameText.x = otherPlayer.x - otherPlayer.usernameText.displayWidth / 2;
+                otherPlayer.usernameText.y = otherPlayer.y - otherPlayer.height + 5;
                 // Moves other players around
                 otherPlayer.setPosition(playerInfo.x, playerInfo.y);
+
                 // Animate other player
                 // this.player is moving right
                 if (playerInfo.directionMoving == "right") {
@@ -226,24 +214,10 @@ function create() {
                 if (playerInfo.directionMoving == "none") {
                     otherPlayer.anims.stop();
                 }
+                // self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self);
             }
             //////// PLAYERS TAGGING ONE ANOTHER ///////
-            self.physics.add.overlap(
-                self.player,
-                self.otherPlayers,
-                function () {
-                    // var headToHead = {
-                    //     player1: self.player,
-                    //     player2: self.otherPlayer
-                    // };
-                    console.log(
-                        `${self.player.name} touched somebody`
-                    );
-                    // this.socket.emit("playerTagged", headToHead);
-                },
-                null,
-                self
-            );
+            // self.physics.add.overlap(self.player, self.otherPlayers, headToHead, null, self);
         });
     });
 
@@ -359,6 +333,11 @@ function create() {
         fontSize: "32px",
         fill: "#FF0000"
     });
+    this.huntingTeam = this.add.text(200, 450, "", {
+        fontSize: "32px",
+        fill: "#FF0000",
+        fontWeight: "bold"
+    });
 
     this.socket.on("scoreUpdate", function (scores) {
         self.blueScoreText.setText("Human: " + scores.human);
@@ -367,54 +346,69 @@ function create() {
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
-    this.timerText = this.add.text(200, 3, "", {
+    this.timerText = this.add.text(250, 3, "", {
         fontSize: "32px",
         fill: "#FFFFFF"
     });
 
-    self.redScoreText.setText("Time: 10");
+    self.timerText.setText(``);
+    self.timerText.setDepth(40);
+    self.huntingTeam.setDepth(40);
+    self.blueScoreText.setDepth(40);
+    self.redScoreText.setDepth(40);
 
-    var timeLeft = 10;
-
-    this.socket.on("timerUpdate", function (time) {
-        timeLeft = 10;
-        var timerId = setInterval(countDown, 1000);
-        // countDown(timeLeft);
-        // self.timerText.setText("Timer: " + time);
-        function countDown() {
-            if (timeLeft == 0) {
-                clearTimeout(timerId);
-                timeLeft = 10;
-                timerId();
-                // Logic to emit the timer has reset
-                // Swap hunt team
-            } else {
-                timeLeft--;
-                console.log(timeLeft);
-                this.timerText.setText("Timer: " + timeLeft);
-            }
-        }
+    this.socket.on("timer", function (timerData) {
+        // console.log("Timer: " + timerData.timeLeft);
+        self.timerText.setText("Timer: " + timerData.timeLeft);
+        self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
+        huntTeam = timerData.huntTeam;
+        // console.log(`Currently hunting: ${timerData.huntTeam}`);
     });
     //// END TIMER ////
 
+    this.socket.on("characterDied", function (id) {
+        console.log(`Looks like ${id} has bit the dust!`);
+        // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
+        // id.disableBody(true, true); // LOGIC!!!
 
-    // console.log(`Darkness mask: ${dark}`);
-    // console.log(`Player: ${self.player}`);
-    // self.dark.x = self.player.x;
-    // self.dark.y = self.player.y;
+        if (self.player.playerId == id) {
+            self.player.disableBody(true, true);
+        }
+
+        self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+            if (otherPlayer.playerId == id) {
+                otherPlayer.disableBody(true, true);
+            }
+        });
+
+        // console.log("Timer: " + timerData.timeLeft);
+        // self.timerText.setText("Timer: " + timerData.timeLeft);
+        // self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
+        // huntTeam = timerData.huntTeam;
+        // console.log(`Currently hunting: ${timerData.huntTeam}`);
+    });
 }
 
+
+
 function update() {
+    // flashCamera will add a full screen flashing effect, use this for transitioning from light to dark
+    // flashCamera.flash(1000);
+
+    // shakeCamera will add a shaking effect to the camera, use this for player death
+    // shakeCamera.shake(1000);
+
     if (this.player) {
+        // Players name above their head
         this.player.usernameText.x =
             this.player.x - this.player.usernameText.width / 2;
         this.player.usernameText.y = this.player.y - this.player.height + 5;
-        // console.log(`Darkness mask: ${dark}`);
-        // console.log(`Player: ${this.player}`);
+        // Darkness mask follows character
         dark.x = this.player.x;
         dark.y = this.player.y;
         spotlight.x = this.player.x;
         spotlight.y = this.player.y;
+
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
 
@@ -431,7 +425,6 @@ function update() {
             this.player.setData({
                 directionMoving: "none"
             });
-            // console.log(`Player not pressing a direction`);
         }
 
         // Player is pressing left
@@ -440,13 +433,11 @@ function update() {
             this.player.setData({
                 directionMoving: "left"
             });
-            // console.log(`Pressing left`);
         } else if (this.cursors.right.isDown || this.right.isDown) {
             this.player.setVelocityX(speed);
             this.player.setData({
                 directionMoving: "right"
             });
-            // console.log(`Pressing right`);
         }
 
         if (this.cursors.up.isDown || this.up.isDown) {
@@ -454,13 +445,11 @@ function update() {
             this.player.setData({
                 directionMoving: "up"
             });
-            // console.log(`Pressing up`);
         } else if (this.cursors.down.isDown || this.down.isDown) {
             this.player.setVelocityY(speed);
             this.player.setData({
                 directionMoving: "down"
             });
-            // console.log(`Pressing down`);
         }
 
         this.player.setDataEnabled();
@@ -514,6 +503,18 @@ function update() {
             this.player.oldPosition &&
             (x !== this.player.oldPosition.x || y !== this.player.oldPosition.y)
         ) {
+            // Check for collision
+
+            var self = this;
+            this.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self)
+                // console.log(`Player ID: ${self.player.id}`);
+                // if (self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self)) {
+                //     console.log(`Whoo hoo!`);
+                // console.log(`Other Player ID: ${otherPlayer.playerId}`);
+                // }
+            });
+
             this.socket.emit("playerMovement", {
                 directionMoving: this.player.data.values.directionMoving,
                 x: this.player.x,
@@ -542,13 +543,13 @@ function addPlayer(self, playerInfo) {
         playerInfo.team
     );
     self.player.name = playerInfo.username;
-    console.log(self.player);
     self.player.setDataEnabled();
     // Assigns the username to the clients player based on username from server
     self.player.setData({
         username: playerInfo.username,
         team: playerInfo.team
     });
+    clientId = playerInfo.playerId;
 
     // Sets the hitbox for the player, and centers it false
     self.player.body.setSize(16, 10, false);
@@ -557,8 +558,6 @@ function addPlayer(self, playerInfo) {
     self.player.body.setOffset(0, 22, 16, 5);
     // Player name above head
     if (playerInfo.team == "human") {
-        // self.humans.add(self.player);
-        // console.log(`You has been added to the Humans team`);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
@@ -570,8 +569,6 @@ function addPlayer(self, playerInfo) {
             }
         );
     } else {
-        // self.zombies.add(self.player);
-        // console.log(`You has been added to the Zombies team`);
         self.player.usernameText = self.add.text(
             self.player.x,
             self.player.y,
@@ -593,47 +590,69 @@ function addPlayer(self, playerInfo) {
 }
 
 function addOtherPlayers(self, playerInfo) {
-    const otherPlayer = self.physics.add.sprite(
-        playerInfo.x,
-        playerInfo.y,
+    otherPlayer = self.physics.add.sprite(
+        playerInfo.sp.x,
+        playerInfo.sp.y,
         playerInfo.team
     );
     otherPlayer.playerId = playerInfo.playerId;
+    otherPlayer.name = playerInfo.username;
     self.otherPlayers.add(otherPlayer);
-    // if (playerInfo.team == "zombie") {
-    //     self.zombies.add(otherPlayer);
-    //     console.log(`${self.player.name} has been added to the Zombies team`);
-    // } else if (playerInfo.team == "humans") {
-    //     self.humans.add(otherPlayer);
-    //     console.log(`${self.player.name} has been added to the Humans team`);
-    // }
+
+    if (playerInfo.team == "human") {
+        console.log(`${playerInfo.username} has been added to the Humans team`);
+        otherPlayer.usernameText = self.add.text(
+            playerInfo.x,
+            playerInfo.y,
+            playerInfo.username, {
+                fontFamily: "Helvetica",
+                fontSize: 12,
+                color: "#0000FF",
+                fontWeight: "bold"
+            }
+        );
+    } else {
+        console.log(`${playerInfo.username} has been added to the Zombies team`);
+        otherPlayer.usernameText = self.add.text(
+            playerInfo.x,
+            playerInfo.y,
+            playerInfo.username, {
+                fontFamily: "Helvetica",
+                fontSize: 12,
+                color: "#ff0044",
+                fontWeight: "bold"
+            }
+        );
+    }
+
+    // Ensures the text is above all the world layer but below the shroud layer
+    otherPlayer.usernameText.setDepth(25);
 }
 
-//// WORK IN PROGRESS ////
-function playerSpawnLocation() {
-    for (var i in Player.list) {
-        if (Player.list[i].id !== self.id) {
-            if (testCollisionRectRect(self, Player.list[i])) {
-                console.log("Player too close");
+function headToHead(player, enemy) {
+    console.log("Head to Head is called");
+    // console.log(`Looks like the head to head function was called`);
+    console.log(`Player: ${clientId}`);
+    console.log(`OBJ: ${JSON.stringify(player)}`);
+    if (player.data.values.team !== enemy.team) {
+        if (player.data.values.team == huntTeam && enemy.team !== huntTeam) {
+            this.socket.emit("characterDies", enemy.playerId);
 
-                var spawnIndex = Math.floor(Math.random() * spawnPoints.length);
-                console.log(spawnIndex);
-                self.x = spawnPoints[spawnIndex][0];
-                self.y = spawnPoints[spawnIndex][1];
-                self.spawnLocation();
-            }
+        } else if (player.data.values.team !== huntTeam && enemy.team == huntTeam) {
+            this.socket.emit("characterDies", clientId);
         }
     }
-}
 
-// function countDown(timeLeft) {
-//     if (timeLeft == 0) {
-//         clearTimeout(timerId);
-//         timeLeft = 10;
-//         // Logic to emit the timer has reset
-//         // Swap hunt team
-//     } else {
-//         timeLeft--;
-//         this.timerText.setText("Timer: " + timeLeft);
-//     }
-// }
+    // if (player.team == huntTeam) {
+    //     console.log(`${player.name} is on the hunting team and touched someone.`);
+    //     // First param is it is made inactive, second makes it invisible
+    //     enemy.disableBody(true, true);
+    // } else if (enemy.team == huntTeam) {
+    //     console.log(`${enemy.name} is on the hunting team and touched you.`);
+    //     player.disableBody(true, true);
+    // } else {
+    //     console.log(`Uh oh... something went wrong between ${player} and ${enemy}`);
+    // }
+
+    // return true;
+}
