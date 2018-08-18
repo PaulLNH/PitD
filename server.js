@@ -100,8 +100,6 @@ io.on('connection', socket => {
         // Form validation to display username as standard name case
         username: _.startCase(_.toLower(randUsername())),
         playerId: socket.id,
-        // x: 163,
-        // y: 92,
         directionMoving: "none",
         sp: getSpawn(),
         team: assignTeam(),
@@ -186,8 +184,8 @@ function randUsername() {
     return name
 }
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// function getRandomInt(min, max) {
+//     return Math.floor(Math.random() * (max - min + 1)) + min;
+// }
 
 server.listen(PORT, () => console.log(`Listening on ${server.address().port}`));

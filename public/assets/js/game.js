@@ -628,7 +628,8 @@ function addOtherPlayers(self, playerInfo) {
 function headToHead(player, enemy) {
     console.log("Head to Head is called");
     console.log(`Player: ${clientId}`);
-    console.log(`OBJ: ${JSON.stringify(player)}`);
+    console.log(`OBJ: ${player.playerId}`);
+    // Player runs into another player, if the player is not part of the hunting team then player dies, if player is the hunting team and runs into another player the other player dies.
     if (player.data.values.team !== enemy.team) {
         if (player.data.values.team == huntTeam && enemy.team !== huntTeam) {
             this.socket.emit("characterDies", enemy.playerId);
