@@ -5,7 +5,7 @@ import Wrapper from "./components/Wrapper";
 import Modal from "./components/Modal";
 import Button from "./components/Button";
 import Canvas from "./components/Canvas";
-import Game from "./components/Game";
+import GameDiv from "./components/GameDiv";
 import Live from "./components/Live";
 import Overview from "./components/Overview";
 import Video from "./components/Video";
@@ -115,7 +115,7 @@ class App extends Component {
   
 
   render() {
-    const showGame = (this.state.showGame) ? <Game /> : <Wrapper className="screen">
+    const showGame = (this.state.showGame) ? <GameDiv /> : <Wrapper className="screen">
     <div className="video"><Video/>
     </div>
     <div className="bottom row">

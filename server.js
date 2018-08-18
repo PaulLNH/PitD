@@ -10,6 +10,7 @@ const _ = require('lodash');
 const PORT = process.env.PORT || 8080;
 const db = require("./models");
 const io = require('socket.io').listen(server);
+// var socket = require('socket.io-client')('http://localhost');
 // Express middleware
 app.use(bodyParser.urlencoded({
     extended: true
@@ -119,7 +120,8 @@ var scores = {
 
 app.use(express.static(__dirname + '/public'));
 
-app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+// app.get('/', (req, res) => res.sendFile(__dirname + '/index.html'));
+// app.get('/', (req, res) => res.sendFile(__dirname + '../public/game.html'));
 
 io.on('connection', socket => {
     console.log('a user connected: ', socket.id);
