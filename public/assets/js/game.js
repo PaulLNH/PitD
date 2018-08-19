@@ -544,6 +544,7 @@ function update() {
         // Prevents character from moving faster while pressing two directions
         this.player.body.velocity.normalize().scale(speed);
 
+        this.physics.add.overlap(this.player, this.otherPlayers, headToHead, null, this);
         // emit player movement
         var x = this.player.x;
         var y = this.player.y;
@@ -553,7 +554,7 @@ function update() {
         ) {
             // Check for collision
 
-            this.physics.add.overlap(this.player, this.otherPlayers, headToHead, null, this);
+            // this.physics.add.overlap(this.player, this.otherPlayers, headToHead, null, this);
             // var self = this;
             // this.otherPlayers.getChildren().forEach(function (otherPlayer) {
             //     if (self.player.data.values.alive && otherPlayer.alive) {
