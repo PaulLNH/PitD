@@ -51,9 +51,29 @@ var timeLeft = 10;
 
 // Timer
 var countDown = function () {
+    var resurrect = [];
+
     if (timeLeft == 0) {
         console.log(`Resetting timer`);
         timeLeft = maxTimePerRound;
+
+        var spawnCounter = 0;
+        Object.keys(players).forEach(function (id) {
+
+            if (players[id].alive == false) {
+                console.log(`Resurecting ${players[id].username}!`);
+                players[id].alive = true;
+                var spawn = masterSpawn[spawnCounter];
+                spawnCounter++;
+                var playerSpawn = {
+                    id: id,
+                    x: spawn.x,
+                    y: spawn.y
+                };
+                resurrect.push(playerSpawn);
+            }
+        });
+
         switch (huntTeam) {
             case "human":
                 huntTeam = "zombie";
@@ -66,17 +86,22 @@ var countDown = function () {
         }
     } else {
         timeLeft--;
-        console.log(timeLeft);
+        // console.log(timeLeft);
     }
-    console.log(huntTeam);
-    io.sockets.emit('timer', {timeLeft: timeLeft, huntTeam: huntTeam});
+    // console.log(huntTeam);
+    console.log(resurrect);
+    io.sockets.emit('timer', {
+        timeLeft: timeLeft,
+        huntTeam: huntTeam,
+        resurrect: resurrect
+    });
 }
 
 setInterval(countDown, 1000);
 
 var scores = {
-    human: 10,
-    zombie: 25
+    human: 0,
+    zombie: 0
 };
 
 app.use(express.static(__dirname + '/public'));
@@ -102,6 +127,7 @@ io.on('connection', socket => {
         playerId: socket.id,
         directionMoving: "none",
         sp: getSpawn(),
+        alive: true,
         team: assignTeam(),
         speed: 100,
         score: 0,
@@ -148,29 +174,45 @@ io.on('connection', socket => {
     });
 
     socket.on('characterDies', id => {
-        console.log(`Looks like ${id}`);
-        io.emit('characterDied', id);
+        console.log(id);
+        if (players[id.victim].alive) {
+
+            console.log(`Looks like ${id.victim} has died.`);
+            players[id.victim].alive = false;
+            io.emit('characterDied', id.victim);
+
+            players[id.attacker].score
+            if (players[id.attacker].team === 'human') {
+                scores.human += 10;
+            } else {
+                scores.zombie += 10;
+            }
+            // io.emit('scoreUpdate', {scores: scores, attackerScore: players[id.attacker].score});
+
+            // LOGIC - If update player ID to dead - If statement checking if player is alive before running scoreUpdate
+            // io.emit('characterDied', id);
+        }
     });
 
-    socket.on('playerTagged', headToHead => {
-        console.log(`Yup, server says we have collision! ${headToHead}`);
-        if (players[socket.id].team === 'human') {
-            players[socket.id].score
-            scores.human += 10;
-        } else {
-            scores.zombie += 10;
-        }
-        io.emit('scoreUpdate', scores);
-    });
+    // socket.on('playerTagged', headToHead => {
+    //     console.log(`Yup, server says we have collision! ${headToHead}`);
+    //     if (players[socket.id].team === 'human') {
+    //         players[socket.id].score
+    //         scores.human += 10;
+    //     } else {
+    //         scores.zombie += 10;
+    //     }
+    //     io.emit('scoreUpdate', scores);
+    // });
 });
 
-// function randomSpawn() {
-//     var spMax = _.keys(masterSpawn).length;
-//     var spawn = _.values(masterSpawn);
-//     spawn = spawn[getRandomInt(0, spMax)];
-//     console.log(`Spawning at x: ${spawn.x}, y: ${spawn.y}`);
-//     return spawn
-// }
+function randomSpawn() {
+    var spMax = _.keys(masterSpawn).length;
+    var spawn = _.values(masterSpawn);
+    spawn = spawn[getRandomInt(0, spMax)];
+    console.log(`Spawning at x: ${spawn.x}, y: ${spawn.y}`);
+    return spawn
+}
 
 function assignTeam() {
     var team = (Math.floor(Math.random() * 2) == 0) ? 'human' : 'zombie';

@@ -146,16 +146,24 @@ function create() {
     // Darkness mask
     dark = self.add.image(0, 0, "dark");
     spotlight = self.make.sprite({
-        x: 0,
-        y: 0,
+        x: 100,
+        y: 100,
         key: "mask",
         add: true
     });
     spotlight.setScale(0.5);
     dark.mask = new Phaser.Display.Masks.BitmapMask(self, spotlight);
-    dark.setDepth(35);
+    // this.player.mask = new Phaser.Display.Masks.BitmapMask(self, spotlight);
 
-
+    // dark.setDepth(35);
+    // spotlight.setDepth(35);
+    // if (self.player.data.values.team == huntTeam) {
+    //     dark.setDepth(-10);
+    //     spotlight.setDepth(-10);
+    // } else {
+    //     dark.setDepth(35);
+    //     spotlight.setDepth(35);
+    // }
 
     this.socket.on("playerMoved", function (playerInfo) {
         self.otherPlayers.getChildren().forEach(function (otherPlayer) {
@@ -335,10 +343,10 @@ function create() {
         fontWeight: "bold"
     });
 
-    this.socket.on("scoreUpdate", function (scores) {
-        self.blueScoreText.setText("Human: " + scores.human);
-        self.redScoreText.setText("Zombie: " + scores.zombie);
-    });
+    // this.socket.on("scoreUpdate", function (scores) {
+    //     self.blueScoreText.setText("Human: " + scores.scores.human);
+    //     self.redScoreText.setText("Zombie: " + scores.scores.zombie);
+    // });
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
@@ -358,30 +366,56 @@ function create() {
         self.timerText.setText("Timer: " + timerData.timeLeft);
         self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
         huntTeam = timerData.huntTeam;
-        // console.log(`Currently hunting: ${timerData.huntTeam}`);
+
+        if (timerData.timeLeft == 10) {
+            for (i = 0; i < timerData.resurrect.length; i++) {
+
+                if (clientId == timerData.resurrect[i].id) {
+                    self.player.enableBody(true, timerData.resurrect[i].x, timerData.resurrect[i].y, true, true);
+                    self.player.data.values.alive = true;
+                    if (self.player.data.values.team == huntTeam) {
+                        dark.setDepth(-10);
+                        spotlight.setDepth(-10);
+                    } else {
+                        dark.setDepth(35);
+                        spotlight.setDepth(35);
+                    }
+                } else {
+                    // self.player.enableBody(true, true);
+                    self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                        // otherPlayer.enableBody(false, false);
+                        if (otherPlayer.playerId == timerData.resurrect[i].id) {
+                            otherPlayer.enableBody(true, timerData.resurrect[i].x, timerData.resurrect[i].y, true, true);
+                            otherPlayer.alive = true;
+                        }
+                    });
+                }
+            }
+        }
+        console.log(`Currently hunting: ${timerData.huntTeam}`);
+        99
     });
     //// END TIMER ////
 
     this.socket.on("characterDied", function (id) {
         console.log(`Looks like ${id} has bit the dust!`);
         // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
-        // id.disableBody(true, true); // LOGIC!!!
+        console.log(self.player);
 
-        if (self.player.playerId == id) {
+        if (clientId == id) {
+            console.log(self.player);
+            // dark.setDepth(-10);
+            // spotlight.setDepth(-10);
             self.player.disableBody(true, true);
+            self.player.data.values.alive = false;
+        } else {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == id) {
+                    otherPlayer.disableBody(true, true);
+                    otherPlayer.alive = false;
+                }
+            });
         }
-
-        self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-            if (otherPlayer.playerId == id) {
-                otherPlayer.disableBody(true, true);
-            }
-        });
-
-        // console.log("Timer: " + timerData.timeLeft);
-        // self.timerText.setText("Timer: " + timerData.timeLeft);
-        // self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
-        // huntTeam = timerData.huntTeam;
-        // console.log(`Currently hunting: ${timerData.huntTeam}`);
     });
 }
 
@@ -404,6 +438,24 @@ function update() {
         dark.y = this.player.y;
         spotlight.x = this.player.x;
         spotlight.y = this.player.y;
+
+        
+        dark.setDepth(-10);
+        spotlight.setDepth(-10);
+        console.log(this.player.data.values.alive);
+
+        if (this.player.data.values.alive == true && this.player.data.values.team !== huntTeam) {
+            dark.setDepth(35);
+            spotlight.setDepth(35);
+        }
+
+        // if (this.player.data.values.team == huntTeam) {
+        //     dark.setDepth(-10);
+        //     spotlight.setDepth(-10);
+        // } else if (this.player.data.values.alive) {
+        //     dark.setDepth(35);
+        //     spotlight.setDepth(35);
+        // }
 
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
@@ -501,15 +553,13 @@ function update() {
         ) {
             // Check for collision
 
-            var self = this;
-            this.otherPlayers.getChildren().forEach(function (otherPlayer) {
-                self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self)
-                // console.log(`Player ID: ${self.player.id}`);
-                // if (self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self)) {
-                //     console.log(`Whoo hoo!`);
-                // console.log(`Other Player ID: ${otherPlayer.playerId}`);
-                // }
-            });
+            this.physics.add.overlap(this.player, this.otherPlayers, headToHead, null, this);
+            // var self = this;
+            // this.otherPlayers.getChildren().forEach(function (otherPlayer) {
+            //     if (self.player.data.values.alive && otherPlayer.alive) {
+            //         self.physics.add.overlap(self.player, otherPlayer, headToHead, null, self);
+            //     }
+            // });
 
             this.socket.emit("playerMovement", {
                 directionMoving: this.player.data.values.directionMoving,
@@ -543,7 +593,9 @@ function addPlayer(self, playerInfo) {
     // Assigns the username to the clients player based on username from server
     self.player.setData({
         username: playerInfo.username,
-        team: playerInfo.team
+        team: playerInfo.team,
+        alive: true
+        // playerID: 
     });
     clientId = playerInfo.playerId;
 
@@ -577,6 +629,13 @@ function addPlayer(self, playerInfo) {
         );
     }
 
+    // if (self.player.data.values.team == huntTeam) {
+    //     dark.setDepth(-10);
+    //     spotlight.setDepth(-10);
+    // } else {
+    //     dark.setDepth(35);
+    //     spotlight.setDepth(35);
+    // }
     // Ensures the text is above all the world layer but below the shroud layer
     self.player.usernameText.setDepth(25);
     // Prevents player from walking through collision layer
@@ -593,6 +652,7 @@ function addOtherPlayers(self, playerInfo) {
     );
     otherPlayer.playerId = playerInfo.playerId;
     otherPlayer.name = playerInfo.username;
+    otherPlayer.alive = true;
     self.otherPlayers.add(otherPlayer);
 
     if (playerInfo.team == "human") {
@@ -628,14 +688,30 @@ function addOtherPlayers(self, playerInfo) {
 function headToHead(player, enemy) {
     console.log("Head to Head is called");
     console.log(`Player: ${clientId}`);
-    console.log(`OBJ: ${player.playerId}`);
+    console.log(`OBJ: ${JSON.stringify(player)}`);
     // Player runs into another player, if the player is not part of the hunting team then player dies, if player is the hunting team and runs into another player the other player dies.
     if (player.data.values.team !== enemy.team) {
         if (player.data.values.team == huntTeam && enemy.team !== huntTeam) {
-            this.socket.emit("characterDies", enemy.playerId);
+            this.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == enemy.playerId) {
+                    otherPlayer.alive = false;
+                }
+            });
+            console.log(`Enemy dies`);
+            this.socket.emit("characterDies", {
+                victim: enemy.playerId,
+                attacker: clientId
+            });
 
         } else if (player.data.values.team !== huntTeam && enemy.team == huntTeam) {
-            this.socket.emit("characterDies", clientId);
+            console.log(`Player dies`);
+            self.player.data.values.alive = false;
+            // dark.setDepth(-10);
+            // spotlight.setDepth(-10);
+            this.socket.emit("characterDies", {
+                victim: clientId,
+                attacker: enemy.playerId
+            });
         }
     }
 }
