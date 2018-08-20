@@ -1,6 +1,7 @@
 ////////////////// TODO:
 // - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
 
+
 const config = {
     type: Phaser.AUTO, // Which renderer to use
     width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
@@ -115,6 +116,8 @@ function create() {
     ///// START PLAYER CONTROLLER /////
     var self = this;
     this.socket = io();
+
+    this.socket.emit("connection" )
 
     this.otherPlayers = this.physics.add.group({
         key: 'enemy'

@@ -159,6 +159,7 @@ io.on('connection', socket => {
     // when a player disconnects, remove them from our players object
     socket.on('disconnect', () => {
         console.log(`${socket.id} has left the game.`);
+        // Send players[socket.id].scores to the database
         delete players[socket.id];
         // emit a message to all players to remove this player
         io.emit('disconnect', socket.id);
