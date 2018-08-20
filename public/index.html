@@ -1,20 +1,81 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Panic in the Dark</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./assets/css/style.css">
-</head>
-<body>
-    <div id="pitd"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.core.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <!-- <script src="assets/js/phaser.js"></script> -->
-    <!-- <script src="//cdn.jsdelivr.net/npm/phaser@3.12/dist/phaser.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/phaser@3.11/dist/phaser.js"></script>
-    <script src="./assets/js/game.js"></script>
-</body>
-</html>
+<html lang="en">
 
+<head>
+  <meta charset="UTF-8">
+  <title>Panic in the Dark</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootswatch/4.0.0/flatly/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/styles.css" media="screen" title="no title">
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=East+Sea+Dokdo" rel="stylesheet">
+</head>
+
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col text-center">
+        <h1>Panic in the Dark</h1>
+        <h6>Database/Login/Auth Test</h6>
+      </div>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Username</th>
+          <th scope="col">E-mail</th>
+          <th scope="col">Password</th>
+          <th scope="col">Wins</th>
+          <th scope="col">Losses</th>
+          <th scope="col">Kills</th>
+          <th scope="col">Deaths</th>
+          <th scope="col">High Score</th>
+          <th scope="col">Games Played</th>
+          <th scope="col">Time Played</th>
+          <th scope="col">Created At</th>
+          <th scope="col">Last Played</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+    <div class="row">
+      <div id="sign-in" class="col">
+        <h2>Sign In</h2>
+        <form id="sign-in-form">
+          <div class="form-group">
+            <input type="text" class="form-control" id="sign-in-username"
+            placeholder="Username/Email">
+            <input type="password" class="form-control" id="sign-in-password" placeholder="Password">
+            <button type="submit" class="btn btn-success submit btn-md">Sign In</button>
+          </div>
+        </form>
+      </div>
+      <div id="sign-up" class="col">
+        <form id="sign-up-form">
+          <div class="form-group">
+            <h2>Sign Up</h2>
+            <input type="text" class="form-control" id="sign-up-username"
+            placeholder="Username">
+            <input type="text" class="form-control" id="sign-up-email"
+            placeholder="Email">
+            <input type="password" class="form-control" id="sign-up-password" placeholder="Password">
+            <button type="submit" class="btn btn-success submit btn-md">Sign Up</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Custom Script -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.0/moment.min.js" type="text/javascript"></script>
+  <script src="assets/js/admin.js" type="text/javascript"></script>
+  <script src="assets/js/sign-up.js" type="text/javascript"></script>
+  <script src="assets/js/sign-in.js" type="text/javascript"></script>
+</body>
+
+</html>

@@ -1,9 +1,51 @@
-const express = require('express');
+const express = require("express");
+const bodyParser = require("body-parser");
+const jwt = require('jwt-express');
 const app = express();
-const server = require('http').Server(app);
-const io = require('socket.io').listen(server);
+const env = process.env.NODE_ENV || "development";
+const config = require(`${__dirname}/config/config.json`)[env];
+const server = require('http').createServer(app);
 const _ = require('lodash');
+
+// const WSPORT = process.env.PORT || 3000;
 const PORT = process.env.PORT || 8080;
+const db = require("./models");
+const io = require('socket.io').listen(server);
+
+// Express middleware
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
+app.use(express.static("public"));
+app.use(jwt.init(config.tokenSecret, {
+    cookies: false
+}));
+app.use((err, req, res, next) => {
+    console.log(`${req.method} ${req.url} - ${err.message}`);
+
+    if (err.name == 'JWTExpressError') err.status = 401;
+
+    res.status(err.status || 400).send({
+        message: `${err.message}`
+    });
+});
+
+// Api routes
+require("./api/account.js")(app);
+// require("./api/game.js")(app);
+require("./api/admin.js")(app);
+require("./api/html.js")(app);
+
+// // Sync sequelize and start http server
+// db.sequelize.sync().then(function() {
+//   app.listen(PORT, function() {
+//     console.log("App listening on PORT " + PORT);
+//   });
+// });
+
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
 
 var games = {};
 var players = {};
@@ -54,14 +96,14 @@ var countDown = function () {
     var resurrect = [];
 
     if (timeLeft == 0) {
-        console.log(`Resetting timer`);
+        // console.log(`Resetting timer`);
         timeLeft = maxTimePerRound;
 
         var spawnCounter = 0;
         Object.keys(players).forEach(function (id) {
 
             if (players[id].alive == false) {
-                console.log(`Resurecting ${players[id].username}!`);
+                // console.log(`Resurecting ${players[id].username}!`);
                 players[id].alive = true;
                 var spawn = masterSpawn[spawnCounter];
                 spawnCounter++;
@@ -89,7 +131,7 @@ var countDown = function () {
         // console.log(timeLeft);
     }
     // console.log(huntTeam);
-    console.log(resurrect);
+    // console.log(resurrect);
     io.sockets.emit('timer', {
         timeLeft: timeLeft,
         huntTeam: huntTeam,
@@ -114,7 +156,7 @@ io.on('connection', socket => {
     var getSpawn = function () {
         let sp = masterSpawn;
         let i = _.keys(players).length;
-        console.log(sp[i]);
+        // console.log(sp[i]);
         // players(id).x = sp[i].x;
         // players(id).y = sp[i].y;
         return sp[i]
@@ -133,21 +175,13 @@ io.on('connection', socket => {
         score: 0,
         usernameText: null,
         time: timeLeft,
-        spawnLocation: function (masterSpawn) {
-            let sp = masterSpawn;
-            let i = _.keys(players).length;
-            console.log(sp[i]);
-            return sp[i]
-        }
+        // spawnLocation: function (masterSpawn) {
+        //     let sp = masterSpawn;
+        //     let i = _.keys(players).length;
+        //     // console.log(sp[i]);
+        //     return sp[i]
+        // }
     };
-    console.log(timeLeft);
-    // TODO:
-    // CANNOT USER IF STATEMENT HERE, ONLY SENDS ON CONNECTION.
-    // NEED TO FIND ANOTHER WAY TO SYNC CLIENTS TIMER
-    // if (resetTimer) {
-    //     console.log(`Emitting timer reset node`);
-    //     socket.emit('timerUpdate');
-    // }
 
     // send the players object to the new player
     socket.emit('currentPlayers', players);
@@ -155,6 +189,11 @@ io.on('connection', socket => {
     socket.emit('scoreUpdate', scores);
     // update all other players of the new player
     socket.broadcast.emit('newPlayer', players[socket.id]);
+
+    socket.on('updateUsername', (userData) => {
+        players[userData.id].username = userData.username;
+    });
+
 
     // when a player disconnects, remove them from our players object
     socket.on('disconnect', () => {
@@ -175,10 +214,10 @@ io.on('connection', socket => {
     });
 
     socket.on('characterDies', id => {
-        console.log(id);
+        // console.log(id);
         if (players[id.victim].alive) {
 
-            console.log(`Looks like ${id.victim} has died.`);
+            // console.log(`Looks like ${id.victim} has died.`);
             players[id.victim].alive = false;
             io.emit('characterDied', id.victim);
 
@@ -211,19 +250,19 @@ function randomSpawn() {
     var spMax = _.keys(masterSpawn).length;
     var spawn = _.values(masterSpawn);
     spawn = spawn[getRandomInt(0, spMax)];
-    console.log(`Spawning at x: ${spawn.x}, y: ${spawn.y}`);
+    // console.log(`Spawning at x: ${spawn.x}, y: ${spawn.y}`);
     return spawn
 }
 
 function assignTeam() {
     var team = (Math.floor(Math.random() * 2) == 0) ? 'human' : 'zombie';
-    console.log(`on team: ${team}`);
+    // console.log(`on team: ${team}`);
     return team
 }
 
 function randUsername() {
     var name = (Math.floor(Math.random() * 2) == 0) ? 'Paul' : 'Jashan';
-    console.log(`random name: ${name}`);
+    // console.log(`random name: ${name}`);
     return name
 }
 
@@ -231,4 +270,12 @@ function randUsername() {
 //     return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
-server.listen(PORT, () => console.log(`Listening on ${server.address().port}`));
+// server.listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+// Sync sequelize and start http server
+db.sequelize.sync().then(function () {
+    // app.listen(PORT, function () {
+    //     console.log("App listening on PORT " + PORT);
+    // });
+    server.listen(PORT, () => console.log(`Listening on ${PORT}`));
+});

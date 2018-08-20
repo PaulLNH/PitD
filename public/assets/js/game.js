@@ -395,18 +395,18 @@ function create() {
                 }
             }
         }
-        console.log(`Currently hunting: ${timerData.huntTeam}`);
+        // console.log(`Currently hunting: ${timerData.huntTeam}`);
         99
     });
     //// END TIMER ////
 
     this.socket.on("characterDied", function (id) {
-        console.log(`Looks like ${id} has bit the dust!`);
+        // console.log(`Looks like ${id} has bit the dust!`);
         // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
-        console.log(self.player);
+        // console.log(self.player);
 
         if (clientId == id) {
-            console.log(self.player);
+            // console.log(self.player);
             // dark.setDepth(-10);
             // spotlight.setDepth(-10);
             self.player.disableBody(true, true);
@@ -445,7 +445,7 @@ function update() {
         
         dark.setDepth(-10);
         spotlight.setDepth(-10);
-        console.log(this.player.data.values.alive);
+        // console.log(this.player.data.values.alive);
 
         if (this.player.data.values.alive == true && this.player.data.values.team !== huntTeam) {
             dark.setDepth(35);
@@ -585,18 +585,26 @@ function render() {
 }
 
 function addPlayer(self, playerInfo) {
-    console.log(`Player created at x: ${playerInfo.sp.x}, y: ${playerInfo.sp.y}`);
+    // console.log(`Player created at x: ${playerInfo.sp.x}, y: ${playerInfo.sp.y}`);
     // Creates a new player sprite with physics at the server generated random spawn and team
     self.player = self.physics.add.sprite(
         playerInfo.sp.x,
         playerInfo.sp.y,
         playerInfo.team
     );
-    self.player.name = playerInfo.username;
+    // self.player.name = playerInfo.username;
+    self.player.name = localStorage.getItem("username");
+
+    self.socket.emit("updateUsername", {
+        id: playerInfo.playerId,
+        username: localStorage.getItem("username")
+    });
+
     self.player.setDataEnabled();
     // Assigns the username to the clients player based on username from server
     self.player.setData({
-        username: playerInfo.username,
+        // username: playerInfo.username,
+        username: localStorage.getItem("username"),
         team: playerInfo.team,
         alive: true
         // playerID: 
@@ -660,7 +668,7 @@ function addOtherPlayers(self, playerInfo) {
     self.otherPlayers.add(otherPlayer);
 
     if (playerInfo.team == "human") {
-        console.log(`${playerInfo.username} has been added to the Humans team`);
+        // console.log(`${playerInfo.username} has been added to the Humans team`);
         otherPlayer.usernameText = self.add.text(
             playerInfo.x,
             playerInfo.y,
@@ -672,7 +680,7 @@ function addOtherPlayers(self, playerInfo) {
             }
         );
     } else {
-        console.log(`${playerInfo.username} has been added to the Zombies team`);
+        // console.log(`${playerInfo.username} has been added to the Zombies team`);
         otherPlayer.usernameText = self.add.text(
             playerInfo.x,
             playerInfo.y,
@@ -690,9 +698,9 @@ function addOtherPlayers(self, playerInfo) {
 }
 
 function headToHead(player, enemy) {
-    console.log("Head to Head is called");
-    console.log(`Player: ${clientId}`);
-    console.log(`OBJ: ${JSON.stringify(player)}`);
+    // console.log("Head to Head is called");
+    // console.log(`Player: ${clientId}`);
+    // console.log(`OBJ: ${JSON.stringify(player)}`);
     // Player runs into another player, if the player is not part of the hunting team then player dies, if player is the hunting team and runs into another player the other player dies.
     if (player.data.values.team !== enemy.team) {
         if (player.data.values.team == huntTeam && enemy.team !== huntTeam) {
@@ -701,14 +709,14 @@ function headToHead(player, enemy) {
                     otherPlayer.alive = false;
                 }
             });
-            console.log(`Enemy dies`);
+            // console.log(`Enemy dies`);
             this.socket.emit("characterDies", {
                 victim: enemy.playerId,
                 attacker: clientId
             });
 
         } else if (player.data.values.team !== huntTeam && enemy.team == huntTeam) {
-            console.log(`Player dies`);
+            // console.log(`Player dies`);
             self.player.data.values.alive = false;
             // dark.setDepth(-10);
             // spotlight.setDepth(-10);
