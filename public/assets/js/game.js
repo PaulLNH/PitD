@@ -345,19 +345,11 @@ function create() {
         fontWeight: "bold"
     });
 
-    // this.socket.on("scoreUpdate", function (scores) {
-    //     console.log(scores);
-    //     if (scores.human) {
-    //         var humanScore = scores.human;
-    //         var zombieScore = scores.zombie;
-    //     } else {
-    //         var humanScore = scores.scores.human;
-    //         var zombieScore = scores.scores.zombie;
-    //     }
-
-    //     self.blueScoreText.setText("Human: " + humanScore);
-    //     self.redScoreText.setText("Zombie: " + zombieScore);
-    // });
+    this.socket.on("scoreUpdate", function (scores) {
+        console.log(scores);
+        self.blueScoreText.setText("Human: " + scores.scores.human);
+        self.redScoreText.setText("Zombie: " + scores.scores.zombie);
+    });
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
@@ -383,6 +375,10 @@ function create() {
 
                 if (clientId == timerData.resurrect[i].id) {
                     self.player.enableBody(true, timerData.resurrect[i].x, timerData.resurrect[i].y, true, true);
+                    self.player.usernameText.x =
+                        self.player.x - self.player.usernameText.width / 2;
+                    self.player.usernameText.y = self.player.y - self.player.height + 5;
+                    self.player.usernameText.alpha = 1;
                     self.player.data.values.alive = true;
                     if (self.player.data.values.team == huntTeam) {
                         dark.setDepth(-10);
@@ -397,6 +393,10 @@ function create() {
                         // otherPlayer.enableBody(false, false);
                         if (otherPlayer.playerId == timerData.resurrect[i].id) {
                             otherPlayer.enableBody(true, timerData.resurrect[i].x, timerData.resurrect[i].y, true, true);
+                            otherPlayer.usernameText.x =
+                                otherPlayer.x - otherPlayer.usernameText.width / 2;
+                            otherPlayer.usernameText.y = otherPlayer.y - otherPlayer.height + 5;
+                            otherPlayer.usernameText.alpha = 1;
                             otherPlayer.alive = true;
                         }
                     });
@@ -418,10 +418,13 @@ function create() {
             // dark.setDepth(-10);
             // spotlight.setDepth(-10);
             self.player.disableBody(true, true);
+            console.log(self.player.usernameText);
+            self.player.usernameText.alpha = 0;
             self.player.data.values.alive = false;
         } else {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (otherPlayer.playerId == id) {
+                    otherPlayer.usernameText.alpha = 0;
                     otherPlayer.disableBody(true, true);
                     otherPlayer.alive = false;
                 }
@@ -614,7 +617,9 @@ function addPlayer(self, playerInfo) {
         // username: playerInfo.username,
         username: localStorage.getItem("username"),
         team: playerInfo.team,
-        alive: true
+        alive: true,
+        kills: 0,
+        deaths: 0
         // playerID: 
     });
     clientId = playerInfo.playerId;
@@ -670,6 +675,8 @@ function addOtherPlayers(self, playerInfo) {
     otherPlayer.playerId = playerInfo.playerId;
     otherPlayer.name = playerInfo.username;
     otherPlayer.alive = true;
+    otherPlayer.kills = 0;
+    otherPlayer.deaths = 0;
     self.otherPlayers.add(otherPlayer);
 
     if (playerInfo.team == "human") {
