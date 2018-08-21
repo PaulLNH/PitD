@@ -5,13 +5,7 @@ $(document).ready(function() {
     const username = $("#sign-up-username");
     const email = $("#sign-up-email");
     const password = $("#sign-up-password");
-    const avatar = $("#sign-up-avatar");
     const signUp = $("#sign-up-form");
-
-
-    function handleAvatartChoice () {
-
-    }
   
     $(signUp).on("submit", function handleFormSubmit(event) {
       event.preventDefault();
@@ -29,17 +23,7 @@ $(document).ready(function() {
     function submitNewAccount(body) {
       console.log(body);
       $.post("/api/accounts/add", body, function() {
-        // window.location.href = "/admin";
-        submitLogin(body);
-      });
-    }
-
-    function submitLogin(body) {
-      $.post("/api/accounts/login", body, function(data) {
-        console.log(data);
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("username", data.payload.username);
-        window.location.href = "/game";
+        window.location.href = "/admin";
       });
     }
 });
