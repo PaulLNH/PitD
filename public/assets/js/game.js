@@ -1,6 +1,5 @@
-////////////////// TODO:
-// - Fix animation for other clients, it favors up and down over left and right, each client favors left and right over up and down. Not consistant between screens
-
+// If game needs to be used via webpack for socket to work properly w/ react,
+// use this template: https://github.com/photonstorm/phaser3-project-template
 
 const config = {
     type: Phaser.AUTO, // Which renderer to use
@@ -117,7 +116,7 @@ function create() {
     var self = this;
     this.socket = io();
 
-    this.socket.emit("connection" )
+    this.socket.emit("connection")
 
     this.otherPlayers = this.physics.add.group({
         key: 'enemy'
@@ -332,11 +331,11 @@ function create() {
     //// END ANIMATIONS ////
 
     //// START SCORE UPDATE ////
-    this.blueScoreText = this.add.text(16, 3, "", {
+    this.blueScoreText = this.add.text(16, 3, "Human: 0", {
         fontSize: "32px",
         fill: "#0000FF"
     });
-    this.redScoreText = this.add.text(425, 3, "", {
+    this.redScoreText = this.add.text(425, 3, "Zombie: 0", {
         fontSize: "32px",
         fill: "#FF0000"
     });
@@ -347,8 +346,17 @@ function create() {
     });
 
     // this.socket.on("scoreUpdate", function (scores) {
-    //     self.blueScoreText.setText("Human: " + scores.scores.human);
-    //     self.redScoreText.setText("Zombie: " + scores.scores.zombie);
+    //     console.log(scores);
+    //     if (scores.human) {
+    //         var humanScore = scores.human;
+    //         var zombieScore = scores.zombie;
+    //     } else {
+    //         var humanScore = scores.scores.human;
+    //         var zombieScore = scores.scores.zombie;
+    //     }
+
+    //     self.blueScoreText.setText("Human: " + humanScore);
+    //     self.redScoreText.setText("Zombie: " + zombieScore);
     // });
     //// END SCORE UPDATE ////
 
@@ -442,7 +450,7 @@ function update() {
         spotlight.x = this.player.x;
         spotlight.y = this.player.y;
 
-        
+
         dark.setDepth(-10);
         spotlight.setDepth(-10);
         // console.log(this.player.data.values.alive);
@@ -641,13 +649,10 @@ function addPlayer(self, playerInfo) {
         );
     }
 
-    // if (self.player.data.values.team == huntTeam) {
-    //     dark.setDepth(-10);
-    //     spotlight.setDepth(-10);
-    // } else {
-    //     dark.setDepth(35);
-    //     spotlight.setDepth(35);
-    // }
+    self.player.usernameText.x =
+        self.player.x - self.player.usernameText.width / 2;
+    self.player.usernameText.y = self.player.y - self.player.height + 5;
+
     // Ensures the text is above all the world layer but below the shroud layer
     self.player.usernameText.setDepth(25);
     // Prevents player from walking through collision layer
@@ -668,7 +673,6 @@ function addOtherPlayers(self, playerInfo) {
     self.otherPlayers.add(otherPlayer);
 
     if (playerInfo.team == "human") {
-        // console.log(`${playerInfo.username} has been added to the Humans team`);
         otherPlayer.usernameText = self.add.text(
             playerInfo.x,
             playerInfo.y,
@@ -680,7 +684,6 @@ function addOtherPlayers(self, playerInfo) {
             }
         );
     } else {
-        // console.log(`${playerInfo.username} has been added to the Zombies team`);
         otherPlayer.usernameText = self.add.text(
             playerInfo.x,
             playerInfo.y,
@@ -693,14 +696,14 @@ function addOtherPlayers(self, playerInfo) {
         );
     }
 
+    otherPlayer.usernameText.x = otherPlayer.x - otherPlayer.usernameText.displayWidth / 2;
+    otherPlayer.usernameText.y = otherPlayer.y - otherPlayer.height + 5;
+
     // Ensures the text is above all the world layer but below the shroud layer
     otherPlayer.usernameText.setDepth(25);
 }
 
 function headToHead(player, enemy) {
-    // console.log("Head to Head is called");
-    // console.log(`Player: ${clientId}`);
-    // console.log(`OBJ: ${JSON.stringify(player)}`);
     // Player runs into another player, if the player is not part of the hunting team then player dies, if player is the hunting team and runs into another player the other player dies.
     if (player.data.values.team !== enemy.team) {
         if (player.data.values.team == huntTeam && enemy.team !== huntTeam) {
@@ -718,8 +721,6 @@ function headToHead(player, enemy) {
         } else if (player.data.values.team !== huntTeam && enemy.team == huntTeam) {
             // console.log(`Player dies`);
             self.player.data.values.alive = false;
-            // dark.setDepth(-10);
-            // spotlight.setDepth(-10);
             this.socket.emit("characterDies", {
                 victim: clientId,
                 attacker: enemy.playerId
