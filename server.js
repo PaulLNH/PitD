@@ -33,19 +33,22 @@ app.use((err, req, res, next) => {
 
 // Api routes
 require("./api/account.js")(app);
-// require("./api/game.js")(app);
 require("./api/admin.js")(app);
 require("./api/html.js")(app);
 
-// // Sync sequelize and start http server
-// db.sequelize.sync().then(function() {
-//   app.listen(PORT, function() {
-//     console.log("App listening on PORT " + PORT);
-//   });
-// });
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
+// TODO:
+// - Add notice that the player has died and they will respawn at the end of the surge
+// - Increment score for each second alive during hunted phaser
+// - Add more detailed stats: Kills, Deaths
+// - Add camera shake when player dies (Code in place, just have to activate it on an event)
+// - Add flashing when power surges (Code in place, just have to activate it on an event. May conflict with the camera shake)
+// - Implement a menu bar at bottom
+// - Create a "lobby" mode where all players see darkness and game won't start until someone presses the "Ready" button
+// - Add music w/ mute button on the menu bar
+// - Add sound from players dying
 
 var games = {};
 var players = {};
@@ -86,9 +89,6 @@ const masterSpawn = [{
     }
 ]
 
-////////////////// TODO: 
-// - Form validation on names: min 1, max 8, name case "_.startCase(_.toLower('UseRnaMe'))" Although this should be done when we gather the players username going into the database.
-
 var timeLeft = 10;
 
 // Timer
@@ -96,14 +96,12 @@ var countDown = function () {
     var resurrect = [];
 
     if (timeLeft == 0) {
-        // console.log(`Resetting timer`);
         timeLeft = maxTimePerRound;
 
         var spawnCounter = 0;
         Object.keys(players).forEach(function (id) {
 
             if (players[id].alive == false) {
-                // console.log(`Resurecting ${players[id].username}!`);
                 players[id].alive = true;
                 var spawn = masterSpawn[spawnCounter];
                 spawnCounter++;
@@ -128,10 +126,7 @@ var countDown = function () {
         }
     } else {
         timeLeft--;
-        // console.log(timeLeft);
     }
-    // console.log(huntTeam);
-    // console.log(resurrect);
     io.sockets.emit('timer', {
         timeLeft: timeLeft,
         huntTeam: huntTeam,
@@ -156,16 +151,41 @@ io.on('connection', socket => {
     var getSpawn = function () {
         let sp = masterSpawn;
         let i = _.keys(players).length;
-        // console.log(sp[i]);
-        // players(id).x = sp[i].x;
-        // players(id).y = sp[i].y;
         return sp[i]
     }
+
+    var assignTeam = function () {
+        let humans = 0;
+        let zombies = 0;
+        let team;
+        // Logic to see if a player exists this occurs before the player is added to the players object.
+
+        // If there are no players in the game, push the next to the humans team.
+        if (_.keys(players).length <= 0) {
+            return team = "human"
+        } else {
+            // If there are players in the game, get all the players and check their teams, iterate +1 for each team that is represnted in the game.
+            Object.keys(players).forEach(function (id) {
+                if (players[id].team == "human") {
+                    humans++;
+                } else if (players[id].team == "zombie") {
+                    zombies++;
+                }
+            });
+            // If there are equal or less humans, return human team.
+            if (humans <= zombies) {
+                team = "human";
+            } else {
+                team = "zombie";
+            }
+        }
+        return team
+    }
+
     // create a new player and add it to our players object
-    // Username, Id, spawnPoint, team, 
     players[socket.id] = {
         // Form validation to display username as standard name case
-        username: _.startCase(_.toLower(randUsername())),
+        username: "",
         playerId: socket.id,
         directionMoving: "none",
         sp: getSpawn(),
@@ -173,27 +193,23 @@ io.on('connection', socket => {
         team: assignTeam(),
         speed: 100,
         score: 0,
+        kills: 0,
+        deaths: 0,
         usernameText: null,
         time: timeLeft,
-        // spawnLocation: function (masterSpawn) {
-        //     let sp = masterSpawn;
-        //     let i = _.keys(players).length;
-        //     // console.log(sp[i]);
-        //     return sp[i]
-        // }
     };
 
     // send the players object to the new player
     socket.emit('currentPlayers', players);
     // // send the current scores
-    socket.emit('scoreUpdate', scores);
-    // update all other players of the new player
-    socket.broadcast.emit('newPlayer', players[socket.id]);
+    // socket.emit('scoreUpdate', scores);
 
+    // Get a username back from the player logging in
     socket.on('updateUsername', (userData) => {
         players[userData.id].username = userData.username;
+        // update all other players of the new player
+        socket.broadcast.emit('newPlayer', players[socket.id]);
     });
-
 
     // when a player disconnects, remove them from our players object
     socket.on('disconnect', () => {
@@ -227,55 +243,15 @@ io.on('connection', socket => {
             } else {
                 scores.zombie += 10;
             }
-            // io.emit('scoreUpdate', {scores: scores, attackerScore: players[id.attacker].score});
-
-            // LOGIC - If update player ID to dead - If statement checking if player is alive before running scoreUpdate
-            // io.emit('characterDied', id);
+            io.emit('scoreUpdate', {
+                scores: scores,
+                attackerScore: players[id.attacker].score
+            });
         }
     });
-
-    // socket.on('playerTagged', headToHead => {
-    //     console.log(`Yup, server says we have collision! ${headToHead}`);
-    //     if (players[socket.id].team === 'human') {
-    //         players[socket.id].score
-    //         scores.human += 10;
-    //     } else {
-    //         scores.zombie += 10;
-    //     }
-    //     io.emit('scoreUpdate', scores);
-    // });
 });
 
-function randomSpawn() {
-    var spMax = _.keys(masterSpawn).length;
-    var spawn = _.values(masterSpawn);
-    spawn = spawn[getRandomInt(0, spMax)];
-    // console.log(`Spawning at x: ${spawn.x}, y: ${spawn.y}`);
-    return spawn
-}
-
-function assignTeam() {
-    var team = (Math.floor(Math.random() * 2) == 0) ? 'human' : 'zombie';
-    // console.log(`on team: ${team}`);
-    return team
-}
-
-function randUsername() {
-    var name = (Math.floor(Math.random() * 2) == 0) ? 'Paul' : 'Jashan';
-    // console.log(`random name: ${name}`);
-    return name
-}
-
-// function getRandomInt(min, max) {
-//     return Math.floor(Math.random() * (max - min + 1)) + min;
-// }
-
-// server.listen(PORT, () => console.log(`Listening on ${PORT}`));
-
-// Sync sequelize and start http server
+// Sync sequelize then start http server
 db.sequelize.sync().then(function () {
-    // app.listen(PORT, function () {
-    //     console.log("App listening on PORT " + PORT);
-    // });
     server.listen(PORT, () => console.log(`Listening on ${PORT}`));
 });
