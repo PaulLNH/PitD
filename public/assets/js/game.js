@@ -24,6 +24,13 @@ const config = {
     }
 };
 
+// var huntTeamElement = $("#huntTeam");
+var topBar = $("#topProgressBar");
+var humanScore = $('#humanScore');
+var zombieScore = $('#zombieScore');
+var statusText = $('#statusText');
+var killerAvatar = $('#killerAvatar');
+
 // Instanciate a new game instance
 const game = new Phaser.Game(config);
 var collisionLayer;
@@ -331,19 +338,19 @@ function create() {
     //// END ANIMATIONS ////
 
     //// START SCORE UPDATE ////
-    this.blueScoreText = this.add.text(16, 3, "Human: 0", {
-        fontSize: "32px",
-        fill: "#0000FF"
-    });
-    this.redScoreText = this.add.text(425, 3, "Zombie: 0", {
-        fontSize: "32px",
-        fill: "#FF0000"
-    });
-    this.huntingTeam = this.add.text(200, 450, "", {
-        fontSize: "32px",
-        fill: "#FF0000",
-        fontWeight: "bold"
-    });
+    // this.blueScoreText = this.add.text(16, 3, "Human: 0", {
+    //     fontSize: "32px",
+    //     fill: "#0000FF"
+    // });
+    // this.redScoreText = this.add.text(425, 3, "Zombie: 0", {
+    //     fontSize: "32px",
+    //     fill: "#FF0000"
+    // });
+    // this.huntingTeam = this.add.text(200, 450, "", {
+    //     fontSize: "32px",
+    //     fill: "#FF0000",
+    //     fontWeight: "bold"
+    // });
 
     this.youHaveDied = this.add.text(20, 225, "You Have Died, respawingin in: ", {
         fontSize: "32px",
@@ -354,8 +361,10 @@ function create() {
 
     this.socket.on("scoreUpdate", function (scores) {
         // console.log(scores);
-        self.blueScoreText.setText("Human: " + scores.scores.human);
-        self.redScoreText.setText("Zombie: " + scores.scores.zombie);
+        humanScore.text(scores.scores.human);
+        zombieScore.text(scores.scores.zombie);
+        // self.blueScoreText.setText("Human: " + scores.scores.human);
+        // self.redScoreText.setText("Zombie: " + scores.scores.zombie);
     });
     //// END SCORE UPDATE ////
 
@@ -366,16 +375,25 @@ function create() {
     });
 
     // self.timerText.setText(``);
-    self.timerText.setDepth(40);
-    self.huntingTeam.setDepth(40);
-    self.blueScoreText.setDepth(40);
-    self.redScoreText.setDepth(40);
+    // self.timerText.setDepth(40);
+    // self.huntingTeam.setDepth(40);
+    // self.blueScoreText.setDepth(40);
+    // self.redScoreText.setDepth(40);
 
     this.socket.on("timer", function (timerData) {
         // console.log("Timer: " + timerData.timeLeft);
+        topBar.text(`The ${huntTeam} team is hunting for another ${timerData.timeLeft} seconds.`);
+        topBar.css('width', (timerData.timeLeft * 10) + '%').attr('aria-valuenow', (timerData.timeLeft * 10));
+        if (self.player.data.values.team == huntTeam && self.player.data.values.alive) {
+            topBar.attr('class', 'progress-bar bg-success');
+        } else if (self.player.data.values.team !== huntTeam && self.player.data.values.alive) {
+            topBar.attr('class', 'progress-bar bg-danger');
+        } else {
+            topBar.attr('class', 'progress-bar bg-warning');
+        }
         self.youHaveDied.setText("You have died, respawning in: " + timerData.timeLeft);
-        self.timerText.setText("Timer: " + timerData.timeLeft);
-        self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
+        // self.timerText.setText("Timer: " + timerData.timeLeft);
+        // self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
         huntTeam = timerData.huntTeam;
 
         // Points for being alive during hunted phase
@@ -385,6 +403,16 @@ function create() {
         };
 
         if (timerData.timeLeft == 10) {
+            topBar.text(`The ${huntTeam} team is hunting for another ${timerData.timeLeft} seconds.`);
+            if (self.player.data.values.team == huntTeam && self.player.data.values.alive) {
+                topBar.attr('class', 'progress-bar bg-success');
+            } else if (self.player.data.values.team !== huntTeam && self.player.data.values.alive) {
+                topBar.attr('class', 'progress-bar bg-danger');
+            } else {
+                topBar.attr('class', 'progress-bar bg-warning');
+            }
+
+            // huntTeamElement.text(nameCase(huntTeam));
             // flashCamera.flash(750);
             for (i = 0; i < timerData.resurrect.length; i++) {
                 if (clientId == timerData.resurrect[i].id) {
@@ -424,11 +452,34 @@ function create() {
     //// END TIMER ////
 
     this.socket.on("characterDied", function (id) {
-        // console.log(`Looks like ${id} has bit the dust!`);
+        console.log(`${JSON.stringify(id)}`);
         // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
         // console.log(self.player);
+        if (clientId == id.attacker) {
+            if (self.player.data.values.team == "human") {
+                $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+            } else {
+                $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+            }
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == id.victim) {
+                    statusText.text(`You killed ${otherPlayer.name}.`);
+                }
+            });
+        }
 
-        if (clientId == id) {
+        if (clientId == id.victim) {
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == id.attacker) {
+                    if (otherPlayer.team == "human") {
+                        $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+                    } else {
+                        $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+                    }
+                    statusText.text(`${otherPlayer.name} has killed you.`);
+                }
+            });
+
             // console.log(self.player);
             // dark.setDepth(-10);
             // spotlight.setDepth(-10);
@@ -440,7 +491,7 @@ function create() {
             shakeCamera.shake(1000);
         } else {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-                if (otherPlayer.playerId == id) {
+                if (otherPlayer.playerId == id.victim) {
                     otherPlayer.usernameText.alpha = 0;
                     otherPlayer.disableBody(true, true);
                     otherPlayer.alive = false;
@@ -623,6 +674,13 @@ function addPlayer(self, playerInfo) {
     // self.player.name = playerInfo.username;
     self.player.name = localStorage.getItem("username");
 
+    statusText.text(`Welcome ${self.player.name}!`);
+    if (playerInfo.team == "human") {
+        $("#killerAvatar").attr("src","./assets/images/AH1.png");
+    } else {
+        $("#killerAvatar").attr("src","./assets/images/AZ1.png");
+    }
+
     self.socket.emit("updateUsername", {
         id: playerInfo.playerId,
         username: localStorage.getItem("username")
@@ -751,4 +809,8 @@ function headToHead(player, enemy) {
             });
         }
     }
+}
+
+function nameCase(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }

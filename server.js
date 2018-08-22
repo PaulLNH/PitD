@@ -44,9 +44,9 @@ require("./api/html.js")(app);
 /////////////////////////////////////////////////
 
 // TODO:
-// - Fix bug where players don't show up in the correct location. Players always appear to be at their spawnpoint when a new player logs in
-// - Add flashing when power surges (Code in place, just have to activate it on an event. May conflict with the camera shake)
-// - Implement a menu bar at bottom
+// - Fix bug where players don't show up in the correct location. Players always appear to be at their spawnpoint when a new player logs in if that other player has not moved
+// - Add status bar at the top
+// - Implement a menu and score bar at bottom
 // - Create a "lobby" mode where all players see darkness and game won't start until someone presses the "Ready" button
 // - Add music w/ mute button on the menu bar
 // - Add sound from players dying
@@ -56,6 +56,10 @@ require("./api/html.js")(app);
 // - Increment score for each second alive during hunted phaser
 // - Add more detailed stats: Kills, Deaths
 // - Add camera shake when player dies
+/////////////
+// - Added favicon
+// - Added top and bottom status bars
+// - Added progress bar to represent time with live updating team and seconds
 
 var games = {};
 var players = {};
@@ -249,7 +253,7 @@ io.on("connection", socket => {
       players[id.victim].alive = false;
       players[id.victim].deaths++;
       console.log(`${players[id.victim].username} has died for a total of ${players[id.victim].deaths} deaths this match.`);
-      io.emit("characterDied", id.victim);
+      io.emit("characterDied", id);
 
       players[id.attacker].score += 10;
       players[id.attacker].kills++;

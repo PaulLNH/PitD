@@ -1,98 +1,185 @@
 body {
-  background: url("../images/zombielight.jpg");
-  background-size: cover;
-  /* height: 100vh;
+    /* background: url("../images/zombielight.jpg"); */
+    background-size: cover;
+    /* height: 100vh;
   z-index: -2; */
-  background-color: black;
-  color: white;
-  font-size: 12pt;
+    background-color: black;
+    color: white;
+    font-size: 12pt;
 }
 
+/* .btn-danger {
+    background-color: rgb(130, 0, 0);
+}
+
+.btn-primary {
+    background-color: rgb(0, 0, 130);
+} */
+
+#killerAvatar {
+    margin-top: 2px;
+}
+
+#statusText {
+    margin-bottom: 0;
+    margin-top: 2.5%;
+}
+
+#topBar {
+    /* width: 645px;
+    height: 40px; */
+    padding-left: 15px;
+    padding-right: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    background: black;
+    width: 100%;
+    height: 40px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    /* float: left; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.progress-bar {
+    color: black;
+    font-weight: bolder;
+}
+
+.btn {
+    display: block;
+    width: 130px;
+    height: 85%;
+    margin-top: 3px;
+}
+
+#bottomBar {
+    /* width: 645px;
+    height: 40px; */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-family: Arial, Helvetica, sans-serif;
+    background: black;
+    width: 100%;
+    height: 40px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* float: bottom; */
+}
+
+/* .content {
+    padding-top: 25%;
+    padding-bottom: 25%;
+} */
+
 #pitd {
-  margin: auto;
-  /* margin-top: 100px; */
-  width: 645px;
-  border: 1px solid #5c0808;
-  padding: 10px;
-  /* background-color: black; */
+    margin: auto;
+    /* margin-top: 100px; */
+    padding-top: 40px;
+    width: 640px;
+    height: 560px;
+    /* border: 1px solid #5c0808; */
+    /* padding: 10px; */
+    /* background-color: black; */
+    position: relative;
 }
 
 .form-control {
-  width: 280px;
-  margin-top: 10px;
-  max-height: auto;
-  display: block;
+    width: 280px;
+    margin-top: 10px;
+    max-height: auto;
+    display: block;
 }
+
 .table {
-  margin: 10px 0px 40px 0px;
-  background-color: rgba(0, 0, 0, 0.75)
+    margin: 10px 0px 40px 0px;
+    background-color: rgba(0, 0, 0, 0.75)
 }
+
 h1 {
-  margin-top: 10px;
-  margin-bottom: 0px;
-  color: red;
-  font-size: 175px;
-  font-family: "East Sea Dokdo";
-  text-shadow: 5px 10px #000000;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    color: red;
+    font-size: 175px;
+    font-family: "East Sea Dokdo";
+    text-shadow: 5px 10px #000000;
 }
+
 h2 {
-  margin-bottom: 0px;
-  font-size: 85px;
-  color: red;
-  font-family: "East Sea Dokdo";
-  text-shadow: 5px 10px #000000;
+    margin-bottom: 0px;
+    font-size: 85px;
+    color: red;
+    font-family: "East Sea Dokdo";
+    text-shadow: 5px 10px #000000;
 }
+
 .admin-header {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  margin-left: 40px;
-  color: red;
-  font-size: 85px;
-  font-family: "East Sea Dokdo";
-  text-shadow: 4px 8px #000000;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 40px;
+    color: red;
+    font-size: 85px;
+    font-family: "East Sea Dokdo";
+    text-shadow: 4px 8px #000000;
 }
+
 .col-centered {
-  display:inline-block;
-  float:none;
+    display: inline-block;
+    float: none;
 }
+
 .sign-up-avatar {
-  margin: 10px 0px 0px 10px;
-  padding: 2px;
+    margin: 10px 0px 0px 10px;
+    padding: 2px;
 }
+
 .sign-up-avatar:hover {
-  background-color: red;
-  cursor: pointer;
+    background-color: red;
+    cursor: pointer;
 }
+
 #avatar-choice {
-  margin-top: 15px;
-  font-size: 16pt;
-  font-weight: bolder;
+    margin-top: 15px;
+    font-size: 16pt;
+    font-weight: bolder;
 }
+
 #sign-in {
-  background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 50px auto;
-  width: 350px;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 0px 15px 15px 40px;
+    margin: 50px auto;
+    width: 350px;
 }
+
 #sign-up {
-  background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 50px auto;
-  width: 350px;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 0px 15px 15px 40px;
+    margin: 50px auto;
+    width: 350px;
 }
+
 #admin-sign-in {
-  background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 0px 150px 50px 150px;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 0px 15px 15px 40px;
+    margin: 0px 150px 50px 150px;
 }
+
 #admin-sign-up {
-  background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 0px 150px 50px 150px;
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 0px 15px 15px 40px;
+    margin: 0px 150px 50px 150px;
 }
+
 #token {
-  max-width: 300px;
+    max-width: 300px;
 }
+
 button.submit {
-  margin-top: 20px;
+    margin-top: 20px;
 }
