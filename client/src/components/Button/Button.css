@@ -1,0 +1,45 @@
+.img-container {
+    margin: 0;
+    font-size: 16;
+}
+
+header {
+    font-family: 'Special Elite', cursive;
+}
+
+ul {
+    background-color: rgba(34, 34, 34, 0.5);
+    color: white;
+    height: 75px;
+    padding-bottom: 20px;
+    padding-right: 0;
+    font-size: 3em;
+    text-align: center;
+}
+
+header {
+color: red;
+}
+
+.nav-tabs {
+    border: none;
+}
+
+button {
+    background-color: transparent;
+    color: white;
+}
+
+.buttonDiv {
+    text-align: center;
+    /* margin-bottom: 20px; */
+}
+
+button:hover {
+    transform: scale(1.15);
+    color: rgb(165, 6, 6);
+}
+
+iframe {
+    border: none;
+}

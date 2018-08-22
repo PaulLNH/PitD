@@ -1,0 +1,93 @@
+body {
+  background: url("../images/zombielight.jpg");
+  background-size: cover;
+  /* height: 100vh;
+  z-index: -2; */
+  background-color: black;
+  color: white;
+  font-size: 12pt;
+}
+
+#pitd {
+  margin: auto;
+  /* margin-top: 100px; */
+  width: 645px;
+  border: 1px solid #5c0808;
+  padding: 10px;
+  /* background-color: black; */
+}
+
+.form-control {
+  width: 280px;
+  margin-top: 10px;
+  max-height: auto;
+  display: block;
+}
+.table {
+  margin: 10px 0px 40px 0px;
+  background-color: rgba(0, 0, 0, 0.75)
+}
+h1 {
+  margin-top: 10px;
+  margin-bottom: 0px;
+  color: red;
+  font-size: 175px;
+  font-family: "East Sea Dokdo";
+  text-shadow: 5px 10px #000000;
+}
+h2 {
+  margin-bottom: 0px;
+  font-size: 85px;
+  color: red;
+  font-family: "East Sea Dokdo";
+  text-shadow: 5px 10px #000000;
+}
+.admin-header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 40px;
+  color: red;
+  font-size: 85px;
+  font-family: "East Sea Dokdo";
+  text-shadow: 4px 8px #000000;
+}
+.col-centered {
+  display:inline-block;
+  float:none;
+}
+.sign-up-avatar {
+  margin: 10px 0px 0px 10px;
+}
+#avatar-choice {
+  margin-top: 15px;
+  font-size: 16pt;
+  font-weight: bolder;
+}
+#sign-in {
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 50px auto;
+  width: 350px;
+}
+#sign-up {
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 50px auto;
+  width: 350px;
+}
+#admin-sign-in {
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 0px 150px 50px 150px;
+}
+#admin-sign-up {
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 0px 150px 50px 150px;
+}
+#token {
+  max-width: 300px;
+}
+button.submit {
+  margin-top: 20px;
+}

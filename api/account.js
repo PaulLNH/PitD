@@ -2,6 +2,10 @@ var db = require("../models");
 const Op = require('sequelize').Op;
 const jwt = require('jwt-express');
 
+var db = require("../models");
+const Op = require('sequelize').Op;
+const jwt = require('jwt-express');
+
 module.exports = (app) => {
 
   // Read all accounts
@@ -39,13 +43,9 @@ module.exports = (app) => {
 
       let valid = await account.validPassword(req.body.password);
 
-      if (!valid) {
-        
-        next({status: 401, message: 'Username/Password Wrong'});
-      }
+      if (!valid) { next({status: 401, message: 'Username/Password Wrong'}); }
 
-      res.status(200).send(res.jwt({
-        
+      res.status(200).send(res.jwt({  
         id: account.id,
         username: account.username
       }));
