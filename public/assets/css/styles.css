@@ -57,6 +57,11 @@ h2 {
 }
 .sign-up-avatar {
   margin: 10px 0px 0px 10px;
+  padding: 2px;
+}
+.sign-up-avatar:hover {
+  background-color: red;
+  cursor: pointer;
 }
 #avatar-choice {
   margin-top: 15px;
