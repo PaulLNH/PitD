@@ -380,7 +380,7 @@ function create() {
 
         // Points for being alive during hunted phase
         if (self.player.data.values.alive && self.player.data.values.team !== huntTeam && timerData.timeLeft !== 10) {
-            console.log(`${clientId} has survived 1 second of hunting.`);
+            // console.log(`${clientId} has survived 1 second of hunting.`);
             self.socket.emit("alivePoints", clientId);
         };
 
