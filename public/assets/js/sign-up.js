@@ -5,13 +5,17 @@ $(document).ready(function() {
     const username = $("#sign-up-username");
     const email = $("#sign-up-email");
     const password = $("#sign-up-password");
-    const avatar = $("#sign-up-avatar");
+    const avatar = "";
     const signUp = $("#sign-up-form");
-
 
     function handleAvatartChoice () {
 
     }
+
+    $(".sign-up-avatar").on("click", function(){
+      console.log("avatar clicked");
+      $(this).css("background-color", "black");
+    })
   
     $(signUp).on("submit", function handleFormSubmit(event) {
       event.preventDefault();
