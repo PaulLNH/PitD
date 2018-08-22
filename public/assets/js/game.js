@@ -345,8 +345,15 @@ function create() {
         fontWeight: "bold"
     });
 
+    this.youHaveDied = this.add.text(20, 225, "You Have Died, respawingin in: ", {
+        fontSize: "32px",
+        fill: "#000000",
+        fontWeight: "bold"
+    });
+    this.youHaveDied.alpha = 0;
+
     this.socket.on("scoreUpdate", function (scores) {
-        console.log(scores);
+        // console.log(scores);
         self.blueScoreText.setText("Human: " + scores.scores.human);
         self.redScoreText.setText("Zombie: " + scores.scores.zombie);
     });
@@ -358,7 +365,7 @@ function create() {
         fill: "#FFFFFF"
     });
 
-    self.timerText.setText(``);
+    // self.timerText.setText(``);
     self.timerText.setDepth(40);
     self.huntingTeam.setDepth(40);
     self.blueScoreText.setDepth(40);
@@ -366,18 +373,26 @@ function create() {
 
     this.socket.on("timer", function (timerData) {
         // console.log("Timer: " + timerData.timeLeft);
+        self.youHaveDied.setText("You have died, respawning in: " + timerData.timeLeft);
         self.timerText.setText("Timer: " + timerData.timeLeft);
         self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
         huntTeam = timerData.huntTeam;
 
-        if (timerData.timeLeft == 10) {
-            for (i = 0; i < timerData.resurrect.length; i++) {
+        // Points for being alive during hunted phase
+        if (self.player.data.values.alive && self.player.data.values.team !== huntTeam && timerData.timeLeft !== 10) {
+            console.log(`${clientId} has survived 1 second of hunting.`);
+            self.socket.emit("alivePoints", clientId);
+        };
 
+        if (timerData.timeLeft == 10) {
+            // flashCamera.flash(750);
+            for (i = 0; i < timerData.resurrect.length; i++) {
                 if (clientId == timerData.resurrect[i].id) {
                     self.player.enableBody(true, timerData.resurrect[i].x, timerData.resurrect[i].y, true, true);
                     self.player.usernameText.x =
                         self.player.x - self.player.usernameText.width / 2;
                     self.player.usernameText.y = self.player.y - self.player.height + 5;
+                    self.youHaveDied.alpha = 0;
                     self.player.usernameText.alpha = 1;
                     self.player.data.values.alive = true;
                     if (self.player.data.values.team == huntTeam) {
@@ -418,9 +433,11 @@ function create() {
             // dark.setDepth(-10);
             // spotlight.setDepth(-10);
             self.player.disableBody(true, true);
-            console.log(self.player.usernameText);
+            // console.log(self.player.usernameText);
+            self.youHaveDied.alpha = 1;
             self.player.usernameText.alpha = 0;
             self.player.data.values.alive = false;
+            shakeCamera.shake(1000);
         } else {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (otherPlayer.playerId == id) {
