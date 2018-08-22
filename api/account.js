@@ -19,7 +19,8 @@ module.exports = (app) => {
     let account = await db.Account.create({
       username: req.body.username,
       password: req.body.password,
-      email: req.body.email
+      email: req.body.email,
+      avatar: req.body.avatar
     });
     // console.log(account);
     res.status(200).send(account);
@@ -43,7 +44,8 @@ module.exports = (app) => {
 
       res.status(200).send(res.jwt({  
         id: account.id,
-        username: account.username
+        username: account.username,
+        avatar: account.avatar
       }));
     } catch (error) {
       console.log(error);

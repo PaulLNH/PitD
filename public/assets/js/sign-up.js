@@ -5,17 +5,29 @@ $(document).ready(function() {
     const username = $("#sign-up-username");
     const email = $("#sign-up-email");
     const password = $("#sign-up-password");
-    const avatar = "";
+    const avatars = [1, 2, 3, 4, 5, 6, 7, 8];
+    var chosenAvatar = "";
     const signUp = $("#sign-up-form");
 
-    function handleAvatartChoice () {
-
+    function handleAvatartChoice (id) {
+      console.log(id);
+      let avatar = "#" + id;
+      chosenAvatar = $(avatar).attr("src");
+      console.log(chosenAvatar);
+      for(var i = 0; i < avatars.length; i++) {
+        $("#avatar-" + avatars[i])
+          .css("background", "none")
+      }
+      $(avatar)
+        .css("background-color", "red")
+        .css("border-color", "red");
     }
 
     $(".sign-up-avatar").on("click", function(){
       console.log("avatar clicked");
-      $(this).css("background-color", "black");
-    })
+      // $(this).css("background", "red");
+      handleAvatartChoice($(this).prop("id"));
+    });
   
     $(signUp).on("submit", function handleFormSubmit(event) {
       event.preventDefault();
@@ -26,6 +38,7 @@ $(document).ready(function() {
         username: username.val().trim(),
         email: email.val().trim(),
         password: password.val().trim(),
+        avatar: chosenAvatar
       };
       submitNewAccount(newAccount);
     });
@@ -43,6 +56,7 @@ $(document).ready(function() {
         console.log(data);
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.payload.username);
+        localStorage.setItem("avatar", data.payload.avatar);
         window.location.href = "/game";
       });
     }

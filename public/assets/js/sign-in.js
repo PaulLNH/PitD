@@ -29,6 +29,7 @@ $(document).ready(function() {
       console.log(data);
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", data.payload.username);
+      localStorage.setItem("avatar", data.payload.avatar);
       window.location.href = "/game";
     });
   }
@@ -36,13 +37,14 @@ $(document).ready(function() {
   function handleLogout(){
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("avatar");
     window.location.href = "/sign-in";
   }
 
   function displayLogin() {
     const loggedIn = $("#sign-in");
     loggedIn.empty();
-    loggedIn.html('<h2>Logged In</h2><b>Username:</b>&nbsp; ' + localStorage.getItem("username") + '</br><b>Token:</b>&nbsp; ' + localStorage.getItem("token").substr(0, 35) + '...</br><button id="logout" type="submit" class="btn btn-success submit btn-md">Log Out</button>');
+    loggedIn.html('<h2>Logged In</h2><img src="' + localStorage.getItem("avatar") + '"/><b>Username:</b>&nbsp; ' + localStorage.getItem("username") + '</br><b>Token:</b>&nbsp; ' + localStorage.getItem("token").substr(0, 35) + '...</br><button id="logout" type="submit" class="btn btn-success submit btn-md">Log Out</button>');
   }
 });
   

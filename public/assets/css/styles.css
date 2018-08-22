@@ -9,12 +9,12 @@ body {
 }
 
 #pitd {
-  margin: auto;
+  margin: 75px auto;
   /* margin-top: 100px; */
   width: 645px;
   border: 1px solid #5c0808;
   padding: 10px;
-  /* background-color: black; */
+  background-color: black;
 }
 
 .form-control {
@@ -37,7 +37,7 @@ h1 {
 }
 h2 {
   margin-bottom: 0px;
-  font-size: 85px;
+  font-size: 100px;
   color: red;
   font-family: "East Sea Dokdo";
   text-shadow: 5px 10px #000000;
@@ -56,11 +56,13 @@ h2 {
   float:none;
 }
 .sign-up-avatar {
-  margin: 10px 0px 0px 10px;
-  padding: 2px;
+  margin: 10px 5px 0px 0px;
+  padding: 7px;
+  /* border: 2px solid none; */
 }
 .sign-up-avatar:hover {
-  background-color: red;
+  padding: 5px;
+  border: 2px solid red;
   cursor: pointer;
 }
 #avatar-choice {
@@ -69,16 +71,18 @@ h2 {
   font-weight: bolder;
 }
 #sign-in {
+  border-radius: 15px;
   background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 50px auto;
-  width: 350px;
+  padding: 0px 10px 18px 50px;
+  margin: 75px auto;
+  width: 340px;
 }
 #sign-up {
+  border-radius: 15px;
   background-color: rgba(0, 0, 0, 0.75);
-  padding: 0px 15px 15px 40px;
-  margin: 50px auto;
-  width: 350px;
+  padding: 0px 10px 18px 50px;
+  margin: 75px auto;
+  width: 340px;
 }
 #admin-sign-in {
   background-color: rgba(0, 0, 0, 0.75);
@@ -94,5 +98,5 @@ h2 {
   max-width: 300px;
 }
 button.submit {
-  margin-top: 20px;
+  margin-top: 22px;
 }
