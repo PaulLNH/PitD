@@ -29,14 +29,14 @@ $(document).ready(function() {
       console.log(data);
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", data.payload.username);
-      window.location.href = "/game";
+      window.location.href = "/game.html";
     });
   }
 
   function handleLogout(){
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    window.location.href = "/sign-in";
+    window.location.href = "/admin";
   }
 
   function displayLogin() {
