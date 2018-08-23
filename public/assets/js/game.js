@@ -1,6 +1,7 @@
 // If game needs to be used via webpack for socket to work properly w/ react,
 // use this template: https://github.com/photonstorm/phaser3-project-template
 
+
 const config = {
     type: Phaser.AUTO, // Which renderer to use
     width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
@@ -30,6 +31,8 @@ var humanScore = $('#humanScore');
 var zombieScore = $('#zombieScore');
 var statusText = $('#statusText');
 var killerAvatar = $('#killerAvatar');
+var scoreScreen = $('#scoreScreen');
+scoreScreen.hide();
 
 // Instanciate a new game instance
 const game = new Phaser.Game(config);
@@ -453,8 +456,9 @@ function create() {
 
     this.socket.on("characterDied", function (id) {
         console.log(`${JSON.stringify(id)}`);
-        // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
-        // console.log(self.player);
+        // TODO: Revisit this logic and make all kills show in the status window with the killers team avatar appearing.
+
+        // If this player is the attacker, show that he killed the other player and remove that player from the game.
         if (clientId == id.attacker) {
             if (self.player.data.values.team == "human") {
                 $("#killerAvatar").attr("src", "./assets/images/AH1.png");
@@ -464,11 +468,13 @@ function create() {
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (otherPlayer.playerId == id.victim) {
                     statusText.text(`You killed ${otherPlayer.name}.`);
+                    otherPlayer.usernameText.alpha = 0;
+                    otherPlayer.disableBody(true, true);
+                    otherPlayer.alive = false;
                 }
             });
-        }
-
-        if (clientId == id.victim) {
+        } else if (clientId == id.victim) {
+            // If this player is the victim then display the other player that has killed you
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (otherPlayer.playerId == id.attacker) {
                     if (otherPlayer.team == "human") {
@@ -479,17 +485,13 @@ function create() {
                     statusText.text(`${otherPlayer.name} has killed you.`);
                 }
             });
-
-            // console.log(self.player);
-            // dark.setDepth(-10);
-            // spotlight.setDepth(-10);
             self.player.disableBody(true, true);
-            // console.log(self.player.usernameText);
             self.youHaveDied.alpha = 1;
             self.player.usernameText.alpha = 0;
             self.player.data.values.alive = false;
             shakeCamera.shake(1000);
         } else {
+            // If this player is neither the killer or the victim, do something
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
                 if (otherPlayer.playerId == id.victim) {
                     otherPlayer.usernameText.alpha = 0;
@@ -531,16 +533,14 @@ function update() {
             spotlight.setDepth(35);
         }
 
-        // if (this.player.data.values.team == huntTeam) {
-        //     dark.setDepth(-10);
-        //     spotlight.setDepth(-10);
-        // } else if (this.player.data.values.alive) {
-        //     dark.setDepth(35);
-        //     spotlight.setDepth(35);
-        // }
-
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
+
+        if (this.cursors.space.isDown) {
+            scoreScreen.show();
+        } else {
+            scoreScreen.hide();
+        }
 
         // If a player is not pressing anything, stop their directionMoving
         if (!this.cursors.left.isDown &&
@@ -672,19 +672,24 @@ function addPlayer(self, playerInfo) {
         playerInfo.team
     );
     // self.player.name = playerInfo.username;
-    self.player.name = localStorage.getItem("username");
+    // self.player.name = localStorage.getItem("username");
+
+    if (localStorage.getItem("username")) {
+        self.player.name = localStorage.getItem("username");
+        self.socket.emit("updateUsername", {
+            id: playerInfo.playerId,
+            username: localStorage.getItem("username")
+        });
+    } else {
+        self.player.name = playerInfo.username;
+    }
 
     statusText.text(`Welcome ${self.player.name}!`);
     if (playerInfo.team == "human") {
-        $("#killerAvatar").attr("src","./assets/images/AH1.png");
+        $("#killerAvatar").attr("src", "./assets/images/AH1.png");
     } else {
-        $("#killerAvatar").attr("src","./assets/images/AZ1.png");
+        $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
     }
-
-    self.socket.emit("updateUsername", {
-        id: playerInfo.playerId,
-        username: localStorage.getItem("username")
-    });
 
     self.player.setDataEnabled();
     // Assigns the username to the clients player based on username from server

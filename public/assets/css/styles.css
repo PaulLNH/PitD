@@ -8,13 +8,15 @@ body {
     font-size: 12pt;
 }
 
-/* .btn-danger {
-    background-color: rgb(130, 0, 0);
+.btn-danger {
+    cursor: context-menu !important;
+    /* background-color: rgb(130, 0, 0); */
 }
 
 .btn-primary {
-    background-color: rgb(0, 0, 130);
-} */
+    cursor: context-menu !important;
+    /* background-color: rgb(0, 0, 130); */
+}
 
 #killerAvatar {
     margin-top: 2px;
@@ -71,6 +73,27 @@ body {
     bottom: 0;
     left: 0;
     /* float: bottom; */
+}
+
+hr {
+    color: white;
+    background-color: white;
+}
+
+table {
+    /* font-size: .75rem; */
+    padding: 5px;
+}
+
+
+#scoreScreen {
+    width: 500px;
+    height: 200px;
+    background-color: black;
+    position: absolute;
+    margin-left: 75px;
+    margin-top: 125px;
+    opacity: 0.75;
 }
 
 /* .content {
