@@ -43,28 +43,6 @@ require("./api/html.js")(app);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 
-// TODO:
-// - Fix bug where players don't show up in the correct location. Players always appear to be at their spawnpoint when a new player logs in if that other player has not moved
-// - Add status bar at the top
-// - Implement a menu and score bar at bottom
-// - Create a "lobby" mode where all players see darkness and game won't start until someone presses the "Ready" button
-// - Add music w/ mute button on the menu bar
-// - Add sound from players dying
-
-// COMPLETED:
-// - Add notice that the player has died and they will respawn at the end of the surge
-// - Increment score for each second alive during hunted phaser
-// - Add more detailed stats: Kills, Deaths
-// - Add camera shake when player dies
-/////////////
-// - Added favicon
-// - Added top and bottom status bars
-// - Added progress bar to represent time with live updating team and seconds
-// - Added buttons with badges to represent teams and their score
-// - Added status box with avatar that shows if you kill a player or if a player kills you
-/////////////
-// - Added functionality where if a user bypasses the loginsystem they will be given default name of "Demo", otherwise it will display their loged in username.
-
 var games = {};
 var players = {};
 // Timer in seconds
