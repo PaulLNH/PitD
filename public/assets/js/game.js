@@ -1,6 +1,7 @@
 // If game needs to be used via webpack for socket to work properly w/ react,
 // use this template: https://github.com/photonstorm/phaser3-project-template
 
+
 const config = {
     type: Phaser.AUTO, // Which renderer to use
     width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
@@ -24,6 +25,15 @@ const config = {
     }
 };
 
+// var huntTeamElement = $("#huntTeam");
+var topBar = $("#topProgressBar");
+var humanScore = $('#humanScore');
+var zombieScore = $('#zombieScore');
+var statusText = $('#statusText');
+var killerAvatar = $('#killerAvatar');
+var scoreScreen = $('#scoreScreen');
+scoreScreen.hide();
+
 // Instanciate a new game instance
 const game = new Phaser.Game(config);
 var collisionLayer;
@@ -37,6 +47,8 @@ var timer;
 var timeLeft = 10;
 var huntTeam = "";
 var clientId = "";
+var numHumans = 0;
+var numZombies = 0;
 
 //////////////////////// PRELOAD ///////////////////////////
 // This runs once before anything else, loads up assets like images and audio
@@ -134,6 +146,12 @@ function create() {
 
     this.socket.on("newPlayer", function (playerInfo) {
         addOtherPlayers(self, playerInfo);
+        statusText.text(`${playerInfo.username} has entered the game.`);
+        if (playerInfo.team == "human") {
+            $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+        } else {
+            $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+        }
     });
 
     this.socket.on("disconnect", function (playerId) {
@@ -331,19 +349,19 @@ function create() {
     //// END ANIMATIONS ////
 
     //// START SCORE UPDATE ////
-    this.blueScoreText = this.add.text(16, 3, "Human: 0", {
-        fontSize: "32px",
-        fill: "#0000FF"
-    });
-    this.redScoreText = this.add.text(425, 3, "Zombie: 0", {
-        fontSize: "32px",
-        fill: "#FF0000"
-    });
-    this.huntingTeam = this.add.text(200, 450, "", {
-        fontSize: "32px",
-        fill: "#FF0000",
-        fontWeight: "bold"
-    });
+    // this.blueScoreText = this.add.text(16, 3, "Human: 0", {
+    //     fontSize: "32px",
+    //     fill: "#0000FF"
+    // });
+    // this.redScoreText = this.add.text(425, 3, "Zombie: 0", {
+    //     fontSize: "32px",
+    //     fill: "#FF0000"
+    // });
+    // this.huntingTeam = this.add.text(200, 450, "", {
+    //     fontSize: "32px",
+    //     fill: "#FF0000",
+    //     fontWeight: "bold"
+    // });
 
     this.youHaveDied = this.add.text(20, 225, "You Have Died, respawingin in: ", {
         fontSize: "32px",
@@ -354,37 +372,59 @@ function create() {
 
     this.socket.on("scoreUpdate", function (scores) {
         // console.log(scores);
-        self.blueScoreText.setText("Human: " + scores.scores.human);
-        self.redScoreText.setText("Zombie: " + scores.scores.zombie);
+        humanScore.text(scores.scores.human);
+        zombieScore.text(scores.scores.zombie);
+        // self.blueScoreText.setText("Human: " + scores.scores.human);
+        // self.redScoreText.setText("Zombie: " + scores.scores.zombie);
     });
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
-    this.timerText = this.add.text(250, 3, "", {
-        fontSize: "32px",
-        fill: "#FFFFFF"
-    });
+    // this.timerText = this.add.text(250, 3, "", {
+    //     fontSize: "32px",
+    //     fill: "#FFFFFF"
+    // });
 
     // self.timerText.setText(``);
-    self.timerText.setDepth(40);
-    self.huntingTeam.setDepth(40);
-    self.blueScoreText.setDepth(40);
-    self.redScoreText.setDepth(40);
+    // self.timerText.setDepth(40);
+    // self.huntingTeam.setDepth(40);
+    // self.blueScoreText.setDepth(40);
+    // self.redScoreText.setDepth(40);
 
     this.socket.on("timer", function (timerData) {
         // console.log("Timer: " + timerData.timeLeft);
+        updateLeaderboard(timerData.players);
+        topBar.text(`The ${huntTeam} team is hunting for another ${timerData.timeLeft} seconds.`);
+        topBar.css('width', (timerData.timeLeft * 10) + '%').attr('aria-valuenow', (timerData.timeLeft * 10));
+        if (self.player.data.values.team == huntTeam && self.player.data.values.alive) {
+            topBar.attr('class', 'progress-bar bg-success');
+        } else if (self.player.data.values.team !== huntTeam && self.player.data.values.alive) {
+            topBar.attr('class', 'progress-bar bg-danger');
+        } else {
+            topBar.attr('class', 'progress-bar bg-warning');
+        }
         self.youHaveDied.setText("You have died, respawning in: " + timerData.timeLeft);
-        self.timerText.setText("Timer: " + timerData.timeLeft);
-        self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
+        // self.timerText.setText("Timer: " + timerData.timeLeft);
+        // self.huntingTeam.setText("Hunting: " + timerData.huntTeam);
         huntTeam = timerData.huntTeam;
 
         // Points for being alive during hunted phase
         if (self.player.data.values.alive && self.player.data.values.team !== huntTeam && timerData.timeLeft !== 10) {
-            console.log(`${clientId} has survived 1 second of hunting.`);
+            // console.log(`${clientId} has survived 1 second of hunting.`);
             self.socket.emit("alivePoints", clientId);
         };
 
         if (timerData.timeLeft == 10) {
+            topBar.text(`The ${huntTeam} team is hunting for another ${timerData.timeLeft} seconds.`);
+            if (self.player.data.values.team == huntTeam && self.player.data.values.alive) {
+                topBar.attr('class', 'progress-bar bg-success');
+            } else if (self.player.data.values.team !== huntTeam && self.player.data.values.alive) {
+                topBar.attr('class', 'progress-bar bg-danger');
+            } else {
+                topBar.attr('class', 'progress-bar bg-warning');
+            }
+
+            // huntTeamElement.text(nameCase(huntTeam));
             // flashCamera.flash(750);
             for (i = 0; i < timerData.resurrect.length; i++) {
                 if (clientId == timerData.resurrect[i].id) {
@@ -424,23 +464,45 @@ function create() {
     //// END TIMER ////
 
     this.socket.on("characterDied", function (id) {
-        // console.log(`Looks like ${id} has bit the dust!`);
-        // LOGIC TO LOOP THROUGH PLAYERS AND UPDATE STATUS OF PLAYER WITH MATCHING ID SUCH THAT PLAYER IS DEAD
-        // console.log(self.player);
+        console.log(`${JSON.stringify(id)}`);
+        // TODO: Revisit this logic and make all kills show in the status window with the killers team avatar appearing.
 
-        if (clientId == id) {
-            // console.log(self.player);
-            // dark.setDepth(-10);
-            // spotlight.setDepth(-10);
+        // If this player is the attacker, show that he killed the other player and remove that player from the game.
+        if (clientId == id.attacker) {
+            if (self.player.data.values.team == "human") {
+                $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+            } else {
+                $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+            }
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == id.victim) {
+                    statusText.text(`You killed ${otherPlayer.name}.`);
+                    otherPlayer.usernameText.alpha = 0;
+                    otherPlayer.disableBody(true, true);
+                    otherPlayer.alive = false;
+                }
+            });
+        } else if (clientId == id.victim) {
+            // If this player is the victim then display the other player that has killed you
+            self.otherPlayers.getChildren().forEach(function (otherPlayer) {
+                if (otherPlayer.playerId == id.attacker) {
+                    if (otherPlayer.team == "human") {
+                        $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+                    } else {
+                        $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+                    }
+                    statusText.text(`${otherPlayer.name} has killed you.`);
+                }
+            });
             self.player.disableBody(true, true);
-            // console.log(self.player.usernameText);
             self.youHaveDied.alpha = 1;
             self.player.usernameText.alpha = 0;
             self.player.data.values.alive = false;
             shakeCamera.shake(1000);
         } else {
+            // If this player is neither the killer or the victim, do something
             self.otherPlayers.getChildren().forEach(function (otherPlayer) {
-                if (otherPlayer.playerId == id) {
+                if (otherPlayer.playerId == id.victim) {
                     otherPlayer.usernameText.alpha = 0;
                     otherPlayer.disableBody(true, true);
                     otherPlayer.alive = false;
@@ -480,16 +542,14 @@ function update() {
             spotlight.setDepth(35);
         }
 
-        // if (this.player.data.values.team == huntTeam) {
-        //     dark.setDepth(-10);
-        //     spotlight.setDepth(-10);
-        // } else if (this.player.data.values.alive) {
-        //     dark.setDepth(35);
-        //     spotlight.setDepth(35);
-        // }
-
         // Default velocity is 0 (stopped)
         this.player.body.velocity.set(0);
+
+        if (this.cursors.space.isDown) {
+            scoreScreen.show();
+        } else {
+            scoreScreen.hide();
+        }
 
         // If a player is not pressing anything, stop their directionMoving
         if (!this.cursors.left.isDown &&
@@ -621,12 +681,24 @@ function addPlayer(self, playerInfo) {
         playerInfo.team
     );
     // self.player.name = playerInfo.username;
-    self.player.name = localStorage.getItem("username");
+    // self.player.name = localStorage.getItem("username");
 
-    self.socket.emit("updateUsername", {
-        id: playerInfo.playerId,
-        username: localStorage.getItem("username")
-    });
+    if (localStorage.getItem("username")) {
+        self.player.name = localStorage.getItem("username");
+        self.socket.emit("updateUsername", {
+            id: playerInfo.playerId,
+            username: localStorage.getItem("username")
+        });
+    } else {
+        self.player.name = playerInfo.username;
+    }
+
+    statusText.text(`Welcome ${self.player.name}!`);
+    if (playerInfo.team == "human") {
+        $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+    } else {
+        $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+    }
 
     self.player.setDataEnabled();
     // Assigns the username to the clients player based on username from server
@@ -751,4 +823,43 @@ function headToHead(player, enemy) {
             });
         }
     }
+}
+
+function nameCase(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function updateLeaderboard(players) {
+    var humanScores = [];
+    var zombieScores = [];
+    numHumans = 0;
+    numZombies = 0;
+
+    console.log(players);
+
+    Object.keys(players).forEach(function (i) {
+        if (players[i].team == "human") {
+            humanScores.push(players[i]);
+            numHumans++;
+            $(`#HP${numHumans}`).html(
+            `<img src="./assets/images/AH1.png" alt="Player Avatar" class="rounded-circle" style="width:20px; margin-left: 5px">
+            </td>
+            <td style="padding-left: 5px">${players[i].username}</td>
+            <td>${players[i].score}</td>
+            <td>${players[i].kills}</td>
+            <td>${players[i].deaths}</td>`
+            );
+        } else if (players[i].team == "zombie") {
+            zombieScores.push(players[i]);
+            numZombies++;
+            $(`#ZP${numZombies}`).html(
+            `<img src="./assets/images/AZ1.png" alt="Player Avatar" class="rounded-circle" style="width:20px; margin-left: 5px">
+            </td>
+            <td style="padding-left: 5px">${players[i].username}</td>
+            <td>${players[i].score}</td>
+            <td>${players[i].kills}</td>
+            <td>${players[i].deaths}</td>`
+            );
+        }
+    });
 }
