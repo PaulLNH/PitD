@@ -146,6 +146,12 @@ function create() {
 
     this.socket.on("newPlayer", function (playerInfo) {
         addOtherPlayers(self, playerInfo);
+        statusText.text(`${playerInfo.username} has entered the game.`);
+        if (playerInfo.team == "human") {
+            $("#killerAvatar").attr("src", "./assets/images/AH1.png");
+        } else {
+            $("#killerAvatar").attr("src", "./assets/images/AZ1.png");
+        }
     });
 
     this.socket.on("disconnect", function (playerId) {
