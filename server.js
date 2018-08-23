@@ -144,7 +144,8 @@ var countDown = function () {
     io.sockets.emit("timer", {
         timeLeft: timeLeft,
         huntTeam: huntTeam,
-        resurrect: resurrect
+        resurrect: resurrect,
+        players: players
     });
 };
 
@@ -270,7 +271,7 @@ io.on("connection", socket => {
             }
             io.emit("scoreUpdate", {
                 scores: scores,
-                attackerScore: players[id.attacker].score
+                attackerScore: players[id.attacker].score,
             });
         }
     });

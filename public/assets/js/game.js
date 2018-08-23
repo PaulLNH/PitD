@@ -47,6 +47,8 @@ var timer;
 var timeLeft = 10;
 var huntTeam = "";
 var clientId = "";
+var numHumans = 0;
+var numZombies = 0;
 
 //////////////////////// PRELOAD ///////////////////////////
 // This runs once before anything else, loads up assets like images and audio
@@ -372,10 +374,10 @@ function create() {
     //// END SCORE UPDATE ////
 
     //// START TIMER ////
-    this.timerText = this.add.text(250, 3, "", {
-        fontSize: "32px",
-        fill: "#FFFFFF"
-    });
+    // this.timerText = this.add.text(250, 3, "", {
+    //     fontSize: "32px",
+    //     fill: "#FFFFFF"
+    // });
 
     // self.timerText.setText(``);
     // self.timerText.setDepth(40);
@@ -385,6 +387,7 @@ function create() {
 
     this.socket.on("timer", function (timerData) {
         // console.log("Timer: " + timerData.timeLeft);
+        updateLeaderboard(timerData.players);
         topBar.text(`The ${huntTeam} team is hunting for another ${timerData.timeLeft} seconds.`);
         topBar.css('width', (timerData.timeLeft * 10) + '%').attr('aria-valuenow', (timerData.timeLeft * 10));
         if (self.player.data.values.team == huntTeam && self.player.data.values.alive) {
@@ -818,4 +821,39 @@ function headToHead(player, enemy) {
 
 function nameCase(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+function updateLeaderboard(players) {
+    var humanScores = [];
+    var zombieScores = [];
+    numHumans = 0;
+    numZombies = 0;
+
+    console.log(players);
+
+    Object.keys(players).forEach(function (i) {
+        if (players[i].team == "human") {
+            humanScores.push(players[i]);
+            numHumans++;
+            $(`#HP${numHumans}`).html(
+            `<img src="./assets/images/AH1.png" alt="Player Avatar" class="rounded-circle" style="width:20px; margin-left: 5px">
+            </td>
+            <td style="padding-left: 5px">${players[i].username}</td>
+            <td>${players[i].score}</td>
+            <td>${players[i].kills}</td>
+            <td>${players[i].deaths}</td>`
+            );
+        } else if (players[i].team == "zombie") {
+            zombieScores.push(players[i]);
+            numZombies++;
+            $(`#ZP${numZombies}`).html(
+            `<img src="./assets/images/AZ1.png" alt="Player Avatar" class="rounded-circle" style="width:20px; margin-left: 5px">
+            </td>
+            <td style="padding-left: 5px">${players[i].username}</td>
+            <td>${players[i].score}</td>
+            <td>${players[i].kills}</td>
+            <td>${players[i].deaths}</td>`
+            );
+        }
+    });
 }
