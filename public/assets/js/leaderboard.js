@@ -2,6 +2,7 @@ $(document).ready(function() {
 
     var accountList = $("tbody");
     var accounts;
+    var rank = 0;
   
     $(document).on("click", "button.delete", handleAccountDelete);
   
@@ -26,10 +27,12 @@ $(document).ready(function() {
     }
   
     function createNewRow(a) {
+      if (rank >= 5) {return;}
+      rank++;
       console.log(a);
       var newRow = $("<tr>");
       var newId = $("<th scope='row'>");
-      newId.text(a.id);
+      newId.text(rank);
       var newAvatarTd = $("<td>");
       var newAvatarImg = $("<img>");
       newAvatarImg.attr("src", a.avatar);
@@ -76,18 +79,18 @@ $(document).ready(function() {
         .append(newId)
         .append(newAvatarTd)
         .append(newUsername)
-        .append(newEmail)
-        .append(newPassword)
+        // .append(newEmail)
+        // .append(newPassword)
         .append(newWins)
         .append(newLosses)
         .append(newKills)
         .append(newDeaths)
         .append(newScore)
         .append(newGamesPlayed)
-        .append(newTimePlayed)
-        .append(newCreatedAt)
-        .append(newLastPlayed)
-        .append(newDeleteBtn);
+        // .append(newTimePlayed)
+        // .append(newCreatedAt)
+        // .append(newLastPlayed)
+        // .append(newDeleteBtn);
 
       newRow.data("account", a);
 

@@ -9,23 +9,7 @@ $(document).ready(function() {
     var chosenAvatar = "";
     const signUp = $("#sign-up-form");
 
-    function handleAvatartChoice (id) {
-      console.log(id);
-      let avatar = "#" + id;
-      chosenAvatar = $(avatar).attr("src");
-      console.log(chosenAvatar);
-      for(var i = 0; i < avatars.length; i++) {
-        $("#avatar-" + avatars[i])
-          .css("background", "none")
-      }
-      $(avatar)
-        .css("background-color", "red")
-        .css("border-color", "red");
-    }
-
     $(".sign-up-avatar").on("click", function(){
-      console.log("avatar clicked");
-      // $(this).css("background", "red");
       handleAvatartChoice($(this).prop("id"));
     });
   
@@ -43,10 +27,23 @@ $(document).ready(function() {
       submitNewAccount(newAccount);
     });
   
+    function handleAvatartChoice (id) {
+      console.log(id);
+      let avatar = "#" + id;
+      chosenAvatar = $(avatar).attr("src");
+      console.log(chosenAvatar);
+      for(var i = 0; i < avatars.length; i++) {
+        $("#avatar-" + avatars[i])
+          .css("background", "none")
+      }
+      $(avatar)
+        .css("background-color", "red")
+        .css("border-color", "red");
+    }
+
     function submitNewAccount(body) {
       console.log(body);
       $.post("/api/accounts/add", body, function() {
-        // window.location.href = "/admin";
         submitLogin(body);
       });
     }

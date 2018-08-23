@@ -1,22 +1,58 @@
 body {
   background: url("../images/zombielight.jpg");
   background-size: cover;
-  /* height: 100vh;
-  z-index: -2; */
+  background-repeat: no-repeat;
+  height: 100vh;
+  z-index: -2;
   background-color: black;
   color: white;
   font-size: 12pt;
 }
-
+.col-centered {
+  display:inline-block;
+  float:none;
+}
 #pitd {
   margin: 75px auto;
-  /* margin-top: 100px; */
   width: 645px;
   border: 1px solid #5c0808;
-  padding: 10px;
-  background-color: black;
+  padding: 25px;
+  background-color: rgba(0, 0, 0, 0.85);
 }
-
+#intro-video {
+  text-align: center;
+  margin: 0 auto;
+  font-size: 0px;
+}
+#vid {
+  margin: 40px;
+  padding: 0px;
+  font-size: 0px;
+  display: inline-block;
+}
+#home-buttons{
+  text-align: center;
+  margin: 0 auto;
+}
+#home-buttons .btn {
+  margin: 0 10px;
+}
+#leaderboard {
+  width: 850px;
+  margin: 0 auto;
+  margin-bottom: 40px;
+  border-radius: 15px;
+}
+.leaderboard-header {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 40px;
+  color: red;
+  font-size: 100px;
+  font-family: "East Sea Dokdo";
+  text-shadow: 3px 6px #000000;
+}
 .form-control {
   width: 280px;
   margin-top: 10px;
@@ -47,18 +83,14 @@ h2 {
   margin-bottom: 10px;
   margin-left: 40px;
   color: red;
-  font-size: 85px;
+  font-size: 100px;
   font-family: "East Sea Dokdo";
   text-shadow: 4px 8px #000000;
 }
-.col-centered {
-  display:inline-block;
-  float:none;
-}
+
 .sign-up-avatar {
   margin: 10px 5px 0px 0px;
   padding: 7px;
-  /* border: 2px solid none; */
 }
 .sign-up-avatar:hover {
   padding: 5px;
@@ -85,14 +117,16 @@ h2 {
   width: 340px;
 }
 #admin-sign-in {
+  border-radius: 15px;
   background-color: rgba(0, 0, 0, 0.75);
   padding: 0px 15px 15px 40px;
-  margin: 0px 150px 50px 150px;
+  margin: 0px 150px 30px 150px;
 }
 #admin-sign-up {
+  border-radius: 15px;
   background-color: rgba(0, 0, 0, 0.75);
   padding: 0px 15px 15px 40px;
-  margin: 0px 150px 50px 150px;
+  margin: 0px 200px 30px 200px;
 }
 #token {
   max-width: 300px;
