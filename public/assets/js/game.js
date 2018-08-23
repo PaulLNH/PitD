@@ -1,12 +1,8 @@
-// If game needs to be used via webpack for socket to work properly w/ react,
-// use this template: https://github.com/photonstorm/phaser3-project-template
-
-
 const config = {
-    type: Phaser.AUTO, // Which renderer to use
-    width: 640, // Canvas width in pixels (usually 800) - 171 /w mario tile example
-    height: 480, // Canvas height in pixels (usually 600) - 160 /w mario tile example
-    zoom: 1, // Since we're working with 16x16 pixel tiles, let's scale up the canvas by 3x
+    type: Phaser.AUTO,
+    width: 640,
+    height: 480,
+    zoom: 1,
     pixelArt: true, // Force the game to scale images up crisply
     parent: "pitd", // ID of the DOM element to add the canvas to
     scene: {
@@ -16,7 +12,7 @@ const config = {
         render: render
     },
     physics: {
-        default: "arcade", // Simplest physics, box and circle colliders
+        default: "arcade",
         arcade: {
             gravity: {
                 y: 0 // Top down game, so no gravity
@@ -25,7 +21,6 @@ const config = {
     }
 };
 
-// var huntTeamElement = $("#huntTeam");
 var topBar = $("#topProgressBar");
 var humanScore = $('#humanScore');
 var zombieScore = $('#zombieScore');
@@ -34,7 +29,7 @@ var killerAvatar = $('#killerAvatar');
 var scoreScreen = $('#scoreScreen');
 scoreScreen.hide();
 
-// Instanciate a new game instance
+// Instantiate a new game instance
 const game = new Phaser.Game(config);
 var collisionLayer;
 const speed = 100;
@@ -458,7 +453,7 @@ function create() {
     //// END TIMER ////
 
     this.socket.on("characterDied", function (id) {
-        console.log(`${JSON.stringify(id)}`);
+        // console.log(`${JSON.stringify(id)}`);
         // TODO: Revisit this logic and make all kills show in the status window with the killers team avatar appearing.
 
         // If this player is the attacker, show that he killed the other player and remove that player from the game.
@@ -829,7 +824,7 @@ function updateLeaderboard(players) {
     numHumans = 0;
     numZombies = 0;
 
-    console.log(players);
+    // console.log(players);
 
     Object.keys(players).forEach(function (i) {
         if (players[i].team == "human") {

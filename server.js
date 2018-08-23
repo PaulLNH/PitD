@@ -45,8 +45,6 @@ require("./api/html.js")(app);
 
 // TODO:
 // - Fix bug where players don't show up in the correct location. Players always appear to be at their spawnpoint when a new player logs in if that other player has not moved
-// - Add status bar at the top
-// - Implement a menu and score bar at bottom
 // - Create a "lobby" mode where all players see darkness and game won't start until someone presses the "Ready" button
 // - Add music w/ mute button on the menu bar
 // - Add sound from players dying
@@ -291,10 +289,6 @@ io.on("connection", socket => {
         }
     });
 });
-
-// function updatePlayerScores(player) {
-//     console.log(player);
-// }
 
 // Sync sequelize then start http server
 db.sequelize.sync().then(function () {
