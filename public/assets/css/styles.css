@@ -1,0 +1,149 @@
+body {
+  background: url("../images/zombielight.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  height: 100vh;
+  z-index: -2;
+  background-color: black;
+  color: white;
+  font-size: 12pt;
+}
+.col-centered {
+  display:inline-block;
+  float:none;
+}
+#pitd {
+  margin: 75px auto;
+  width: 645px;
+  border: 1px solid #5c0808;
+  padding: 25px;
+  background-color: rgba(0, 0, 0, 0.85);
+}
+#intro-video {
+  text-align: center;
+  margin: 0 auto;
+  font-size: 0px;
+}
+#vid {
+  margin: 40px;
+  padding: 0px;
+  font-size: 0px;
+  display: inline-block;
+}
+#home-buttons{
+  text-align: center;
+  margin: 0 auto;
+}
+#home-buttons .btn {
+  margin: 0 10px;
+}
+#leaderboard {
+  width: 850px;
+  margin: 0 auto;
+  margin-bottom: 40px;
+  border-radius: 15px;
+}
+.leaderboard-header {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 40px;
+  color: red;
+  font-size: 100px;
+  font-family: "East Sea Dokdo";
+  text-shadow: 3px 6px #000000;
+}
+
+.form-control {
+    width: 280px;
+    margin-top: 10px;
+    max-height: auto;
+    display: block;
+}
+
+.table {
+    margin: 10px 0px 40px 0px;
+    background-color: rgba(0, 0, 0, 0.75)
+}
+
+h1 {
+    margin-top: 10px;
+    margin-bottom: 0px;
+    color: red;
+    font-size: 175px;
+    font-family: "East Sea Dokdo";
+    text-shadow: 5px 10px #000000;
+}
+
+h2 {
+  margin-bottom: 0px;
+  font-size: 100px;
+  color: red;
+  font-family: "East Sea Dokdo";
+  text-shadow: 5px 10px #000000;
+}
+
+.admin-header {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 40px;
+  color: red;
+  font-size: 100px;
+  font-family: "East Sea Dokdo";
+  text-shadow: 4px 8px #000000;
+}
+
+.sign-up-avatar {
+  margin: 10px 5px 0px 0px;
+  padding: 7px;
+}
+
+.sign-up-avatar:hover {
+  padding: 5px;
+  border: 2px solid red;
+  cursor: pointer;
+}
+
+#avatar-choice {
+    margin-top: 15px;
+    font-size: 16pt;
+    font-weight: bolder;
+}
+
+#sign-in {
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 10px 18px 50px;
+  margin: 75px auto;
+  width: 340px;
+}
+
+#sign-up {
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 10px 18px 50px;
+  margin: 75px auto;
+  width: 340px;
+}
+
+#admin-sign-in {
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 0px 150px 30px 150px;
+}
+
+#admin-sign-up {
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 0px 15px 15px 40px;
+  margin: 0px 200px 30px 200px;
+}
+
+#token {
+    max-width: 300px;
+}
+
+button.submit {
+  margin-top: 22px;
+}

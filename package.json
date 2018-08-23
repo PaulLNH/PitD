@@ -1,0 +1,26 @@
+{
+  "name": "PitD",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "crypto": "^1.0.1",
+    "express": "^4.16.3",
+    "jwt-decode": "^2.2.0",
+    "jwt-express": "^1.1.0",
+    "lodash": "^4.17.10",
+    "mysql2": "^1.6.1",
+    "path": "^0.12.7",
+    "request": "^2.88.0",
+    "sequelize": "^4.38.0",
+    "socket.io": "^2.1.1"
+  }
+}
