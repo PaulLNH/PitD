@@ -21,7 +21,7 @@ $(document).ready(function() {
     });
   
     function submitNewAccount(body) {
-      console.log(body);
+    //   console.log(body);
       $.post("/api/accounts/add", body, function() {
         window.location.href = "/admin";
       });

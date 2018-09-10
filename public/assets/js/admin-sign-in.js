@@ -26,7 +26,7 @@ $(document).ready(function() {
 
   function submitLogin(body) {
     $.post("/api/accounts/login", body, function(data) {
-      console.log(data);
+    //   console.log(data);
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", data.payload.username);
       window.location.href = "/game.html";

@@ -28,10 +28,10 @@ $(document).ready(function() {
     });
   
     function handleAvatartChoice (id) {
-      console.log(id);
+    //   console.log(id);
       let avatar = "#" + id;
       chosenAvatar = $(avatar).attr("src");
-      console.log(chosenAvatar);
+    //   console.log(chosenAvatar);
       for(var i = 0; i < avatars.length; i++) {
         $("#avatar-" + avatars[i])
           .css("background", "none")
@@ -42,7 +42,7 @@ $(document).ready(function() {
     }
 
     function submitNewAccount(body) {
-      console.log(body);
+    //   console.log(body);
       $.post("/api/accounts/add", body, function() {
         submitLogin(body);
       });
@@ -50,7 +50,7 @@ $(document).ready(function() {
 
     function submitLogin(body) {
       $.post("/api/accounts/login", body, function(data) {
-        console.log(data);
+        // console.log(data);
         localStorage.setItem("token", data.token);
         localStorage.setItem("username", data.payload.username);
         localStorage.setItem("avatar", data.payload.avatar);

@@ -258,12 +258,12 @@ io.on("connection", socket => {
             // console.log(`Looks like ${id.victim} has died.`);
             players[id.victim].alive = false;
             players[id.victim].deaths++;
-            console.log(`${players[id.victim].username} has died for a total of ${players[id.victim].deaths} deaths this match.`);
+            // console.log(`${players[id.victim].username} has died for a total of ${players[id.victim].deaths} deaths this match.`);
             io.emit("characterDied", id);
 
             players[id.attacker].score += 10;
             players[id.attacker].kills++;
-            console.log(`${players[id.attacker].username} has got a kill for a total of ${players[id.attacker].kills} kills this match.`);
+            // console.log(`${players[id.attacker].username} has got a kill for a total of ${players[id.attacker].kills} kills this match.`);
             if (players[id.attacker].team === "human") {
                 scores.human += 10;
             } else {

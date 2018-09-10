@@ -8,7 +8,7 @@ $(document).ready(function() {
   
     function getAllAccounts() {
       $.get("/api/accounts/all", function(data) {
-          console.log("Account", data);
+        //   console.log("Account", data);
           accounts = data;
           initializeRows();
       });
@@ -20,7 +20,7 @@ $(document).ready(function() {
       accountList.empty();
       var accountsToAdd = [];
       for (var i = 0; i < accounts.length; i++) {
-        console.log(accounts[i].id);
+        // console.log(accounts[i].id);
         accountsToAdd.push(createNewRow(accounts[i]));
       }
       accountList.append(accountsToAdd);
@@ -29,7 +29,7 @@ $(document).ready(function() {
     function createNewRow(a) {
       if (rank >= 5) {return;}
       rank++;
-      console.log(a);
+    //   console.log(a);
       var newRow = $("<tr>");
       var newId = $("<th scope='row'>");
       newId.text(rank);
