@@ -40,7 +40,7 @@ var collisionLayer;
 const speed = 100;
 
 // Set to true to display collision debugging layer
-let showDebug = true;
+let showDebug = false;
 var spotlight;
 var dark;
 var timer;

@@ -216,7 +216,7 @@ io.on("connection", socket => {
 
     // send the players object to the new player
     socket.emit("currentPlayers", players);
-    // // send the current scores
+    // send the current scores
     // socket.emit('scoreUpdate', scores);
 
     // Get a username back from the player logging in
@@ -229,9 +229,6 @@ io.on("connection", socket => {
     // when a player disconnects, remove them from our players object
     socket.on("disconnect", () => {
         console.log(`${socket.id} has left the game.`);
-        // Send players[socket.id].scores to the database
-        // updatePlayerScores(players[socket.id]);
-
         delete players[socket.id];
 
         // If all players leave the game the scores reset to zero
@@ -253,17 +250,13 @@ io.on("connection", socket => {
     });
 
     socket.on("characterDies", id => {
-        // console.log(id);
         if (players[id.victim].alive) {
-            // console.log(`Looks like ${id.victim} has died.`);
             players[id.victim].alive = false;
             players[id.victim].deaths++;
-            // console.log(`${players[id.victim].username} has died for a total of ${players[id.victim].deaths} deaths this match.`);
             io.emit("characterDied", id);
 
             players[id.attacker].score += 10;
             players[id.attacker].kills++;
-            // console.log(`${players[id.attacker].username} has got a kill for a total of ${players[id.attacker].kills} kills this match.`);
             if (players[id.attacker].team === "human") {
                 scores.human += 10;
             } else {
@@ -291,10 +284,6 @@ io.on("connection", socket => {
         }
     });
 });
-
-// function updatePlayerScores(player) {
-//     console.log(player);
-// }
 
 // Sync sequelize then start http server
 db.sequelize.sync().then(function () {
